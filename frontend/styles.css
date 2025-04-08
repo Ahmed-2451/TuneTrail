@@ -1,0 +1,335 @@
+body { 
+    /* font */
+font-family: "Montserrat", sans-serif;
+    margin: 0;
+    padding: 0;
+    /* background */
+    background-color: #121212;
+    /* color of the element text */
+    color: white;
+}
+
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    background-color: #000000;
+    padding: 24px 12px;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.logo {
+    padding: 0 12px;
+    margin-bottom: 24px;
+}
+
+.logo img {
+    width: 130px;
+}
+
+.navigation {
+    margin-bottom: 24px;
+}
+
+.navigation ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navigation ul li {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+.navigation ul li a {
+    color: #b3b3b3;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.navigation ul li a:hover {
+    color: white;
+}
+
+.navigation ul li a i {
+    margin-right: 16px;
+    font-size: 20px;
+}
+
+/* Main container styles */
+.main-container {
+    margin-left: 230px;
+    padding: 24px;
+}
+
+/* Topbar styles */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 40px;
+}
+
+.prev-next-buttons button {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.prev-next-buttons button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* Navbar styles */
+.navbar {
+    display: flex;
+    align-items: center;
+}
+
+.navbar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar ul li {
+    padding: 0 16px;
+}
+
+.navbar ul li a {
+    color: #b3b3b3;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.navbar ul li a:hover {
+    color: white;
+}
+
+.navbar .divider {
+    color: #b3b3b3;
+}
+
+.navbar button {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 8px 32px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 16px;
+}
+
+.navbar button:hover {
+    transform: scale(1.04);
+}
+
+/* Spotify Playlists styles */
+.spotify-playlists {
+    padding: 20px 40px;
+}
+
+.spotify-playlists h2 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+/* Search page styles */
+.search-container {
+    padding: 20px 40px;
+}
+
+.search-bar {
+    background-color: #242424;
+    border-radius: 24px;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.search-icon {
+    color: #b3b3b3;
+    margin-right: 16px;
+    font-size: 20px;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+}
+
+.search-bar input:focus {
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: #b3b3b3;
+}
+
+/* login and signup pages styles */
+.auth-page {
+    background-color: #121212;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.auth-box {
+    background-color: #282828;
+    padding: 32px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.auth-box .logo {
+    margin-bottom: 24px;
+}
+
+.auth-box .logo img {
+    width: 120px;
+}
+
+.auth-box h1 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 32px;
+}
+
+.auth-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #878787;
+    border-radius: 4px;
+    background-color: #121212;
+    color: white;
+    font-size: 16px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #1db954;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1db954;
+    color: black;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 24px;
+}
+
+.auth-button:hover {
+    transform: scale(1.02);
+}
+
+.auth-divider {
+    margin: 24px 0;
+    position: relative;
+    text-align: center;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background-color: #878787;
+}
+
+.auth-divider::before {
+    left: 0;
+}
+
+.auth-divider::after {
+    right: 0;
+}
+
+.auth-divider span {
+    background-color: #282828;
+    padding: 0 10px;
+    color: #878787;
+    font-size: 14px;
+}
+
+.google-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.google-btn:hover {
+    transform: scale(1.02);
+}
+
+.auth-footer {
+    margin-top: 32px;
+    color: #878787;
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
