@@ -12,10 +12,12 @@
     <div class="auth-container">
         <div class="auth-box">
             <div class="logo">
-                <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png" alt="Logo" />
+                <a href="index.html">
+                    <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png" alt="Logo" />
+                </a>
             </div>
             <h1>Sign up for free to start listening</h1>
-            <form class="auth-form">
+            <form class="auth-form" onsubmit="handleSignup(event)">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" id="email" name="email" required>
@@ -23,6 +25,10 @@
                 <div class="form-group">
                     <label for="password">Create a password</label>
                     <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" required>
                 </div>
                 <div class="form-group">
                     <label for="name">Username</label>
@@ -44,5 +50,6 @@
             </div>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html> 

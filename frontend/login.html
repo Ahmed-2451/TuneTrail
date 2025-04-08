@@ -12,13 +12,15 @@
     <div class="auth-container">
         <div class="auth-box">
             <div class="logo">
-                <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png" alt="Logo" />
+                <a href="index.html">
+                    <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png" alt="Logo" />
+                </a>
             </div>
             <h1>Log in to Spotify</h1>
-            <form class="auth-form">
+            <form class="auth-form" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label for="email">Email address</label>
-                    <input type="text" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -40,5 +42,6 @@
             </div>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
 </html> 
