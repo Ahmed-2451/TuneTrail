@@ -1,6 +1,5 @@
 // Common functionality for all pages
 document.addEventListener('DOMContentLoaded', () => {
-    // Handle active navigation states
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.navigation a');
     
@@ -11,25 +10,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle smooth transitions between pages
     document.addEventListener('click', (e) => {
         const link = e.target.closest('a');
         if (link && link.href && link.href.startsWith(window.location.origin)) {
             e.preventDefault();
             const currentContent = document.querySelector('.main-container');
             
-            // Add fade-out effect
             currentContent.style.opacity = '0';
             currentContent.style.transform = 'translateY(20px)';
             
-            // Navigate after transition
             setTimeout(() => {
                 window.location.href = link.href;
             }, 300);
         }
     });
 
-    // Add entrance animation
     const mainContainer = document.querySelector('.main-container');
     if (mainContainer) {
         mainContainer.style.opacity = '0';
@@ -42,16 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
-    // Handle playlist card clicks
     const playlistCards = document.querySelectorAll('.playlist-card');
     playlistCards.forEach(card => {
         card.addEventListener('click', () => {
-            // Navigate to playlist detail page (when implemented)
             window.location.href = 'playlists.html';
         });
     });
 
-    // Handle create playlist button
     const createPlaylistBtn = document.querySelector('.create-playlist-btn');
     if (createPlaylistBtn) {
         createPlaylistBtn.addEventListener('click', () => {
@@ -59,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle like button clicks
     const likeButtons = document.querySelectorAll('.like-button');
     likeButtons.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -78,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle find songs button in liked songs page
     const findSongsBtn = document.querySelector('.find-songs-btn');
     if (findSongsBtn) {
         findSongsBtn.addEventListener('click', (e) => {
@@ -87,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle authentication state
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     const authButtons = document.querySelector('.navbar');
     
@@ -112,37 +101,31 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // Handle search functionality
     const searchForm = document.querySelector('.search-form');
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const searchQuery = document.querySelector('.search-input').value;
-            // Implement search functionality here
             console.log('Searching for:', searchQuery);
         });
     }
 });
 
-// Handle logout
 function handleLogout() {
     localStorage.removeItem('isAuthenticated');
     window.location.href = 'login.html';
 }
 
-// Handle login form submission
 function handleLogin(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
-    // Here you would typically make an API call to authenticate
-    // For now, we'll just simulate a successful login
+  
     localStorage.setItem('isAuthenticated', 'true');
     window.location.href = 'index.html';
 }
 
-// Handle signup form submission
 function handleSignup(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -154,8 +137,7 @@ function handleSignup(e) {
         return;
     }
     
-    // Here you would typically make an API call to register
-    // For now, we'll just simulate a successful signup
+
     localStorage.setItem('isAuthenticated', 'true');
     window.location.href = 'index.html';
 }
