@@ -75,6 +75,7 @@ body {
     flex: 1;
     background: linear-gradient(to bottom, #1a1a1a, #121212);
     min-height: 100vh;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 /* Topbar styles */
@@ -439,6 +440,45 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.liked-songs-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    padding: 32px 0;
+}
+
+.liked-songs-header img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 60px rgba(0,0,0,0.5);
+}
+
+.liked-songs-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.liked-songs-info span {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #b3b3b3;
+}
+
+.liked-songs-info h1 {
+    font-size: 64px;
+    font-weight: 900;
+    color: #ffffff;
+}
+
+.liked-songs-info p {
+    font-size: 14px;
+    color: #b3b3b3;
 }
 
 .like-button {
@@ -852,4 +892,530 @@ body {
     .quick-access-content img {
         height: 120px;
     }
+}
+
+/* Liked Songs Page Styles */
+.liked-songs-header {
+    padding: 32px;
+    background: linear-gradient(transparent 0, rgba(0,0,0,.5) 100%), linear-gradient(90deg, #450af5, #c4efd9);
+    min-height: 340px;
+    display: flex;
+    align-items: flex-end;
+    color: white;
+}
+
+.liked-songs-banner {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    width: 100%;
+    padding-bottom: 24px;
+}
+
+.liked-songs-image {
+    width: 232px;
+    height: 232px;
+    background: linear-gradient(135deg, #450af5 0%, #8e8ee5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 60px rgba(0,0,0,.5);
+}
+
+.liked-songs-image i {
+    font-size: 64px;
+    color: white;
+}
+
+.liked-songs-info {
+    flex: 1;
+}
+
+.playlist-type {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.liked-songs-info h1 {
+    font-size: 96px;
+    font-weight: 900;
+    margin: 8px 0;
+    line-height: 1;
+}
+
+.playlist-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.username {
+    font-weight: 700;
+}
+
+.bullet {
+    margin: 0 4px;
+}
+
+.playlist-controls {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    background: linear-gradient(transparent 0, rgba(0,0,0,.5) 100%);
+}
+
+.play-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #1db954;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.play-button:hover {
+    transform: scale(1.04);
+    background: #1ed760;
+}
+
+.more-button {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.more-button:hover {
+    color: white;
+}
+
+.songs-list {
+    padding: 0 32px;
+}
+
+.songs-list-header {
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.header-row {
+    display: grid;
+    grid-template-columns: 48px 4fr 3fr 2fr 1fr;
+    gap: 16px;
+    color: #b3b3b3;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.empty-playlist {
+    padding: 64px 0;
+    text-align: center;
+    color: #b3b3b3;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #1db954;
+}
+
+.empty-playlist h2 {
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.empty-playlist p {
+    margin-bottom: 32px;
+}
+
+.find-songs-btn {
+    background: white;
+    color: black;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 500px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.find-songs-btn:hover {
+    transform: scale(1.04);
+    background: #f0f0f0;
+}
+
+/* Active navigation state */
+.navigation li.active a {
+    color: white;
+}
+
+.navigation li.active i {
+    color: #1db954;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .liked-songs-info h1 {
+        font-size: 72px;
+    }
+}
+
+@media (max-width: 768px) {
+    .liked-songs-image {
+        width: 192px;
+        height: 192px;
+    }
+
+    .liked-songs-info h1 {
+        font-size: 48px;
+    }
+
+    .header-row {
+        grid-template-columns: 48px 4fr 2fr 1fr;
+    }
+
+    .song-album {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .liked-songs-image {
+        width: 148px;
+        height: 148px;
+    }
+
+    .liked-songs-info h1 {
+        font-size: 36px;
+    }
+
+    .header-row {
+        grid-template-columns: 48px 4fr 1fr;
+    }
+
+    .song-date-added {
+        display: none;
+    }
+}
+
+/* Image loading animation */
+.image-loading {
+    position: relative;
+    background: linear-gradient(-45deg, #1e1e1e, #2e2e2e);
+    background-size: 400% 400%;
+    animation: gradient 1.5s ease infinite;
+}
+
+.image-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 100%);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes loading {
+}
+
+/* Playlists Page Styles */
+.playlists-header {
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(transparent 0, rgba(0,0,0,.5) 100%);
+}
+
+.playlists-header h1 {
+    font-size: 32px;
+    color: white;
+    font-weight: 700;
+}
+
+.create-playlist-btn {
+    background: #1db954;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 500px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.create-playlist-btn:hover {
+    background: #1ed760;
+    transform: scale(1.04);
+}
+
+.create-playlist-btn i {
+    font-size: 16px;
+}
+
+.playlists-grid {
+    padding: 24px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+.playlist-create-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.playlist-create-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+}
+
+.create-playlist-content {
+    text-align: center;
+    color: white;
+}
+
+.create-playlist-content i {
+    font-size: 40px;
+    margin-bottom: 16px;
+    color: #b3b3b3;
+}
+
+.create-playlist-content h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.empty-playlists {
+    padding: 64px 32px;
+    text-align: center;
+    color: #b3b3b3;
+}
+
+.empty-playlists i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #1db954;
+}
+
+.empty-playlists h2 {
+    font-size: 28px;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.empty-playlists p {
+    margin-bottom: 32px;
+}
+
+.create-first-playlist-btn {
+    background: white;
+    color: black;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 500px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-first-playlist-btn:hover {
+    transform: scale(1.04);
+}
+
+/* Update existing playlist card styles */
+.playlist-card {
+    background: #181818;
+    padding: 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.playlist-card:hover {
+    background: #282828;
+    transform: translateY(-4px);
+}
+
+.playlist-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.playlist-card h3 {
+    font-size: 16px;
+    color: white;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-card p {
+    font-size: 14px;
+    color: #b3b3b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .playlists-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .playlists-header {
+        padding: 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .create-playlist-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .playlists-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+
+    .playlist-card h3 {
+        font-size: 14px;
+    }
+
+    .playlist-card p {
+        font-size: 12px;
+    }
+}
+
+/* Page Transitions */
+.main-container {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Navigation active states */
+.navigation li.active a {
+    color: white;
+}
+
+.navigation li.active i {
+    color: #1db954;
+}
+
+/* Link hover effects */
+a {
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: white;
+}
+
+/* Card hover effects */
+.playlist-card, .quick-access-card {
+    transition: all 0.3s ease;
+}
+
+.playlist-card:hover, .quick-access-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Button hover effects */
+button {
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.04);
+}
+
+/* Active state for navigation items */
+.navigation li.active a {
+    color: white;
+}
+
+.navigation li.active i {
+    color: #1db954;
+}
+
+/* Hover effects for navigation items */
+.navigation a:hover {
+    color: white;
+}
+
+.navigation a:hover i {
+    color: #1db954;
+}
+
+/* Quick access card hover effect */
+.quick-access-card {
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.quick-access-card:hover {
+    transform: translateY(-4px);
+    background-color: #282828;
+}
+
+/* Smooth page transitions */
+.main-container {
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }

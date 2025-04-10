@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liked Songs - Spotify</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png" alt="Logo" />
+            </a>
+        </div>
+
+        <div class="navigation">
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="search.html">
+                        <i class="fas fa-search"></i>
+                        <span>Search</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="playlists.html">
+                        <i class="fas fa-book"></i>
+                        <span>Your Library</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="navigation">
+            <ul>
+                <li>
+                    <a href="playlists.html">
+                        <i class="fas fa-plus-square"></i>
+                        <span>Create Playlist</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="liked-songs.html">
+                        <i class="fas fa-heart"></i>
+                        <span>Liked Songs</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="topbar">
+            <div class="prev-next-buttons">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="navbar">
+                <ul>
+                    <li>
+                        <a href="signup.html">Sign Up</a>
+                    </li>
+                    <li>
+                        <a href="login.html">
+                            <button>Log In</button>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="liked-songs-header">
+            <div class="liked-songs-banner">
+                <div class="liked-songs-image">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="liked-songs-info">
+                    <span class="playlist-type">Playlist</span>
+                    <h1 class="playlist-title">Liked Songs</h1>
+                    <p class="playlist-meta">Ahmed • 56 songs</p>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="liked-songs-content">
+            <div class="playlist-controls">
+                <button class="play-button">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+
+            <div class="songs-list">
+                <div class="songs-list-header">
+                    <div class="header-row">
+                        <div class="song-number">#</div>
+                        <div class="song-title">TITLE</div>
+                        <div class="song-album">ALBUM</div>
+                        <div class="song-date-added">DATE ADDED</div>
+                        <div class="song-duration">
+                            <i class="far fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="songs-list-body">
+                    <!-- Songs will be dynamically added here -->
+                    <div class="empty-playlist">
+                        <h2>Songs you like will appear here</h2>
+                        <p>Save songs by tapping the heart icon</p>
+                        <button class="find-songs-btn">FIND SONGS</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="player">
+        <div class="now-playing">
+            <div class="song-info">
+                <img src="images\image.jpg" alt="Current Song" class="current-song-image">
+                <div class="song-details">
+                    <h4>keep on loving you</h4>
+                    <p>Cigarettes after sex</p>
+                </div>
+                <button class="like-button"><i class="fas fa-heart"></i></button>
+            </div>
+        </div>
+        <div class="player-controls">
+            <div class="control-buttons">
+                <button class="shuffle"><i class="fas fa-random"></i></button>
+                <button class="previous"><i class="fas fa-step-backward"></i></button>
+                <button class="play-pause"><i class="fas fa-play"></i></button>
+                <button class="next"><i class="fas fa-step-forward"></i></button>
+                <button class="repeat"><i class="fas fa-redo"></i></button>
+            </div>
+            <div class="progress-container">
+                <span class="current-time">0:00</span>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <span class="total-time">0:00</span>
+            </div>
+        </div>
+        <div class="volume-controls">
+            <button class="volume-button"><i class="fas fa-volume-up"></i></button>
+            <div class="volume-slider">
+                <div class="volume-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
