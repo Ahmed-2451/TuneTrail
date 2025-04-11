@@ -16,7 +16,7 @@ const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'spotify',
-    password: 'postgres', 
+    password: 'wendy', 
     port: 5432,
 });
 
@@ -129,7 +129,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = 3001;
+const PORT = 3002;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Frontend available at http://localhost:${PORT}`);

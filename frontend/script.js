@@ -76,9 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </li>
                 <li class="divider">|</li>
                 <li>
-                    <a href="#" id="profile-link">
+                    <a href="userprofile.html" id="profile-link" style="display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-user"></i>
-                        Profile
+                        <span>Profile</span>
                     </a>
                 </li>
             </ul>
