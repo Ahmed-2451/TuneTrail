@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liked Songs - Spotify</title>
     <link rel="stylesheet" href="./styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -79,47 +79,27 @@
         </div>
 
         <div class="liked-songs-header">
-            <div class="liked-songs-banner">
-                <div class="liked-songs-image">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="liked-songs-info">
-                    <span class="playlist-type">Playlist</span>
-                    <h1 class="playlist-title">Liked Songs</h1>
-                    <p class="playlist-meta">Ahmed • 56 songs</p>
-                </div>
+            <img src="/images/image.jpg" alt="Liked Songs">
+            <div class="playlist-info">
+                <h1>Liked Songs</h1>
+                <p>Your favorite tracks</p>
             </div>
         </div>
-        
 
-        <div class="liked-songs-content">
-            <div class="playlist-controls">
-                <button class="play-button">
-                    <i class="fas fa-play"></i>
-                </button>
-            </div>
-
-            <div class="songs-list">
-                <div class="songs-list-header">
-                    <div class="header-row">
-                        <div class="song-number">#</div>
-                        <div class="song-title">TITLE</div>
-                        <div class="song-album">ALBUM</div>
-                        <div class="song-date-added">DATE ADDED</div>
-                        <div class="song-duration">
-                            <i class="far fa-clock"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="songs-list-body">
-                    <!-- Songs will be dynamically added here -->
-                    <div class="empty-playlist">
-                        <h2>Songs you like will appear here</h2>
-                        <p>Save songs by tapping the heart icon</p>
-                        <button class="find-songs-btn">FIND SONGS</button>
-                    </div>
-                </div>
-            </div>
+        <div class="tracks-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Album</th>
+                        <th>Date Added</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="tracks-container">
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -128,8 +108,8 @@
             <div class="song-info">
                 <img src="images\image.jpg" alt="Current Song" class="current-song-image">
                 <div class="song-details">
-                    <h4>keep on loving you</h4>
-                    <p>Cigarettes after sex</p>
+                    <h4>K.</h4>
+                    <p>Cigarettes After Sex</p>
                 </div>
                 <button class="like-button"><i class="fas fa-heart"></i></button>
             </div>
@@ -158,6 +138,58 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/musicPlayer.js"></script>
+    <script>
+        (async () => {
+            window.player = new MusicPlayer();
+            
+            try {
+                const tracks = await window.player.loadTracks();
+                const tracksContainer = document.getElementById('tracks-container');
+                
+                tracks.forEach((track, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="track-number">${index + 1}</td>
+                        <td class="song-info">
+                            <img src="${track.cover_url}" alt="${track.title}">
+                            <div class="play-overlay">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div>
+                                <span class="song-title ${index === window.player.currentTrackIndex ? 'active-song' : ''}">${track.title}</span>
+                                <span class="song-artist">${track.artist}</span>
+                            </div>
+                        </td>
+                        <td>${track.album || track.title}</td>
+                        <td>${new Date().toLocaleDateString()}</td>
+                        <td class="track-duration">${window.player.formatTime(track.duration)}</td>
+                    `;
+                    
+                    row.addEventListener('click', async () => {
+                        if (window.player.currentTrackIndex === index && window.player.isPlaying) {
+                            await window.player.togglePlayPause();
+                        } else {
+                            await window.player.loadTrack(index, true);
+                        }
+                    });
+                    
+                    tracksContainer.appendChild(row);
+                });
+
+                window.player.audio.addEventListener('play', () => {
+                    window.player.updateActiveSong(window.player.currentTrackIndex);
+                });
+
+                window.player.audio.addEventListener('ended', () => {
+                    const nextIndex = (window.player.currentTrackIndex + 1) % window.player.tracks.length;
+                    window.player.handleTrackChange(nextIndex);
+                });
+
+            } catch (error) {
+                console.error('Error loading tracks:', error);
+            }
+        })();
+    </script>
 </body>
 </html> 

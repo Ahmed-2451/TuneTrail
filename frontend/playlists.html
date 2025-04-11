@@ -8,6 +8,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+<script src="js/musicPlayer.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        window.player = new MusicPlayer();
+        try {
+            const tracks = await window.player.loadTracks();
+            const playlistContainer = document.querySelector('.playlist-tracks');
+            
+            if (playlistContainer) {
+                tracks.forEach((track, index) => {
+                    const trackElement = document.createElement('div');
+                    trackElement.className = 'playlist-track';
+                    trackElement.innerHTML = `
+                        <div class="track-number">${index + 1}</div>
+                        <img src="${track.cover_url}" alt="${track.title}">
+                        <div class="track-info">
+                            <div class="track-title">${track.title}</div>
+                            <div class="track-artist">${track.artist}</div>
+                        </div>
+                        <div class="track-duration">${window.player.formatTime(track.duration)}</div>
+                    `;
+
+                    trackElement.addEventListener('click', async () => {
+                        await window.player.loadTrack(index);
+                        window.player.togglePlayPause();
+                    });
+
+                    playlistContainer.appendChild(trackElement);
+                });
+            }
+
+            document.querySelectorAll('.playlist-card').forEach((card) => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                });
+            });
+
+        } catch (error) {
+            console.error('Error loading playlist tracks:', error);
+        }
+    });
+</script>
 <body>
     <div class="sidebar">
         <div class="logo">
@@ -132,8 +174,8 @@
             <div class="song-info">
                 <img src="images\image.jpg" alt="Current Song" class="current-song-image">
                 <div class="song-details">
-                    <h4>keep on loving you</h4>
-                    <p>Cigarettes after sex</p>
+                    <h4>K.</h4>
+                    <p>Cigarettes After Sex</p>
                 </div>
                 <button class="like-button"><i class="far fa-heart"></i></button>
             </div>

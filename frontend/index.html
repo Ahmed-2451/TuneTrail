@@ -10,6 +10,26 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+<script src="js/musicPlayer.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        window.player = new MusicPlayer();
+
+        document.querySelectorAll('.playlist-card').forEach((card, index) => {
+            card.addEventListener('click', async () => {
+                await window.player.loadTrack(index);
+                window.player.togglePlayPause();
+            });
+        });
+
+        document.querySelectorAll('.quick-access-card').forEach((card, index) => {
+            card.addEventListener('click', async () => {
+                await window.player.loadTrack(index);
+                window.player.togglePlayPause();
+            });
+        });
+    });
+</script>
 <body>
     <!-- sidebar -->
     <div class="sidebar">
@@ -44,7 +64,6 @@
             </ul>
         </div>
 
-        <!-- playlist navigation -->
         <div class="navigation">
             <ul>
                 <li>
@@ -74,15 +93,9 @@
             <div class="navbar">
                 <ul>
                     <li>
-                        <a href="#">Premium</a>
-                    </li>
-                    <li>
-                        <a href="#">Download</a>
-                    </li>
-                    <li class="divider">|</li>
-                    <li>
                         <a href="signup.html">Sign Up</a>
                     </li>
+                    <li class="divider">|</li>
                 </ul>
                 <button type="button" onclick="window.location.href='login.html'">Log In</button>
             </div>
@@ -219,8 +232,8 @@
             <div class="song-info">
                 <img src="images\image.jpg" alt="Current Song" class="current-song-image">
                 <div class="song-details">
-                    <h4>keep on loving you</h4>
-                    <p>Cigarettes after sex</p>
+                    <h4>K.</h4>
+                    <p>Cigarettes After Sex</p>
                 </div>
                 <button class="like-button"><i class="fas fa-heart"></i></button>
             </div>
@@ -248,7 +261,6 @@
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

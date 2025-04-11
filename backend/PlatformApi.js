@@ -1,10 +1,13 @@
 const express = require('express');
 const fs = require('node:fs');
 const path = require('node:path');
+const songRoutes = require('./routes/songRoutes');
+const { PlaybackState } = require('./models/playbackState');
 
 const app = express();
 const port = 3000;
 
+app.use(express.json());
 
 const mediaDirectory = path.join(__dirname, 'media');
 
@@ -81,6 +84,35 @@ function getContentType(filename) {
     }
 }
 
+// Use song routes
+app.use('/api', songRoutes);
+
+// Playback state endpoints
+app.get('/api/playback-state', async (req, res) => {
+    try {
+        const state = await PlaybackState.findOne({
+            where: { userId: req.user.id }
+        });
+        res.json(state || {});
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching playback state' });
+    }
+});
+
+app.post('/api/playback-state', async (req, res) => {
+    try {
+        const [state] = await PlaybackState.upsert({
+            userId: req.user.id,
+            ...req.body
+        });
+        res.json(state);
+    } catch (error) {
+        res.status(500).json({ error: 'Error saving playback state' });
+    }
+});
+
 app.listen(port, () => {
     console.log('Server listening at http://localhost:${port}');
     });
+
+module.exports = app;

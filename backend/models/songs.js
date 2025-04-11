@@ -6,6 +6,10 @@ const songs = sequelize.define('songs', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  artist: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   duration: {
     type: DataTypes.INTEGER, // in seconds
     allowNull: false
@@ -21,6 +25,15 @@ const songs = sequelize.define('songs', {
   plays: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  lastPlayed: {
+    type: DataTypes.DATE
+  },
+  genre: {
+    type: DataTypes.STRING
+  },
+  album: {
+    type: DataTypes.STRING
   }
 });
 
