@@ -91,6 +91,7 @@
     "safer-buffer": "^2.1.2",
     "semver": "^7.7.1",
     "send": "^1.2.0",
+    "sequelize": "^6.37.7",
     "serve-static": "^2.2.0",
     "setprototypeof": "^1.2.0",
     "side-channel": "^1.1.0",

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const Users = require('./models/users');
+const sequelize = require('./db');
 
 const app = express();
 
@@ -22,8 +24,11 @@ const pool = new Pool({
 
 async function initializeDatabase() {
     try {
+        // Sync Sequelize models
+        await sequelize.sync({ alter: true });
+        
         await pool.query(`
-            CREATE TABLE tracks (
+            CREATE TABLE IF NOT EXISTS tracks (
                 id SERIAL PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 artist VARCHAR(255) NOT NULL,
@@ -49,7 +54,32 @@ async function initializeDatabase() {
     }
 }
 
+// Create admin account on server start
+async function createAdminAccount() {
+    try {
+        const adminExists = await Users.findOne({
+            where: { email: 'admin@spotify.com' }
+        });
+
+        if (!adminExists) {
+            await Users.create({
+                username: 'admin',
+                email: 'admin@spotify.com',
+                password: 'admin123', // In a real app, you should hash passwords
+                name: 'Admin User',
+                isAdmin: true
+            });
+            console.log('Admin account created');
+        }
+    } catch (error) {
+        console.error('Error creating admin account:', error);
+    }
+}
+
 initializeDatabase();
+
+// Call createAdminAccount when server starts
+createAdminAccount();
 
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
@@ -120,6 +150,84 @@ app.post('/api/playback/volume', (req, res) => {
     res.json(playbackState);
 });
 
+// Admin login endpoint
+app.post('/api/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+        const user = await Users.findOne({
+            where: {
+                email: email,
+                password: password // In a real app, you should hash passwords
+            }
+        });
+
+        if (user && user.isAdmin) {
+            res.json({ success: true });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+        }
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// User signup endpoint
+app.post('/api/signup', async (req, res) => {
+    const { email, password, name, username } = req.body;
+    
+    try {
+        const user = await Users.create({
+            email,
+            password, // In a real app, you should hash passwords
+            name,
+            username,
+            isAdmin: false
+        });
+        
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ success: false, message: 'Error creating user' });
+    }
+});
+
+// Login endpoint
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    
+    try {
+        const user = await Users.findOne({
+            where: {
+                email: email,
+                password: password // In a real app, you should hash passwords
+            }
+        });
+
+        if (user) {
+            // Check if the email is the admin email
+            const isAdmin = email === 'admin@spotify.com';
+            
+            res.json({ 
+                success: true,
+                isAdmin: isAdmin
+            });
+        } else {
+            res.status(401).json({ 
+                success: false, 
+                message: 'Invalid credentials' 
+            });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
@@ -129,9 +237,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
     console.log(`Frontend available at http://localhost:${PORT}`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });

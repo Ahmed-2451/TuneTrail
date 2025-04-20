@@ -27,6 +27,10 @@ const Users = sequelize.define('Users', {
   profileImage: {
     type: DataTypes.STRING,
     defaultValue: 'defaultpfp.jpg'//a new user signs up and doesn't upload a profile picture
+  },
+  isAdmin: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 });
 
