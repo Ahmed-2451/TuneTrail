@@ -62,69 +62,101 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    const authButtons = document.querySelector('.navbar');
-    
-    if (isAuthenticated) {
-        authButtons.innerHTML = `
-            <ul>
-                <li>
-                    <a href="#">Premium</a>
-                </li>
-                <li>
-                    <a href="#">Download</a>
-                </li>
-                <li class="divider">|</li>
-                <li>
-                    <a href="userprofile.html" id="profile-link" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-user"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-            </ul>
-            <button type="button" onclick="handleLogout()">Log Out</button>
-        `;
-    }
-
-    const searchForm = document.querySelector('.search-form');
-    if (searchForm) {
-        searchForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const searchQuery = document.querySelector('.search-input').value;
-            console.log('Searching for:', searchQuery);
-        });
-    }
+    // Check authentication status and update UI
+    updateAuthUI();
 });
 
+// Update UI based on authentication status
+function updateAuthUI() {
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    const authButtons = document.querySelector('.navbar');
+    if (authButtons) {
+        if (isAuthenticated && token) {
+            // Extract name from email if name is not available
+            let displayName = user.name;
+            if (!displayName && user.email) {
+                // Use the part before @ in the email as the name
+                displayName = user.email.split('@')[0];
+                // Capitalize first letter
+                displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            }
+            
+            // User is logged in
+            authButtons.innerHTML = `
+                <ul>
+                    <li>
+                        <a href="#">Premium</a>
+                    </li>
+                    <li>
+                        <a href="#">Download</a>
+                    </li>
+                    <li class="divider">|</li>
+                    <li>
+                        <a href="userprofile.html" id="profile-link" style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${user.profileImage || 'images/defaultpfp.jpg'}" alt="Profile" style="width: 28px; height: 28px; border-radius: 50%;">
+                            <span>${displayName || 'User'}</span>
+                        </a>
+                    </li>
+                </ul>
+                <button type="button" onclick="handleLogout()">Log Out</button>
+            `;
+        } else {
+            // User is not logged in
+            authButtons.innerHTML = `
+                <ul>
+                    <li>
+                        <a href="signup.html">Sign Up</a>
+                    </li>
+                    <li class="divider">|</li>
+                </ul>
+                <button type="button" onclick="window.location.href='login.html'">Log In</button>
+            `;
+        }
+    }
+}
+
 function handleLogout() {
+    // Clear authentication data
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirect to login page
     window.location.href = 'login.html';
 }
 
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+// API request helper with authentication
+async function apiRequest(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
     
-  
-    localStorage.setItem('isAuthenticated', 'true');
-    window.location.href = 'index.html';
-}
-
-function handleSignup(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
-    
-    if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
+    // Add authorization header if token exists
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
     }
     
-
-    localStorage.setItem('isAuthenticated', 'true');
-    window.location.href = 'index.html';
+    try {
+        const response = await fetch(`${config.API_URL}${endpoint}`, options);
+        
+        // Handle 401 Unauthorized (token expired or invalid)
+        if (response.status === 401) {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+            return null;
+        }
+        
+        return response;
+    } catch (error) {
+        console.error('API request error:', error);
+        return null;
+    }
 }
 
 class AudioPlayer {
@@ -161,7 +193,9 @@ class AudioPlayer {
 
     async loadPlaybackState() {
         try {
-            const response = await fetch('/api/playback-state');
+            const response = await apiRequest('/playback-state');
+            if (!response) return;
+            
             const state = await response.json();
             
             // Restore volume
@@ -184,7 +218,9 @@ class AudioPlayer {
 
     async loadSong(songId) {
         try {
-            const response = await fetch(`/api/songs/${songId}`);
+            const response = await apiRequest(`/songs/${songId}`);
+            if (!response) return;
+            
             const song = await response.json();
             
             this.currentSong = song;
@@ -196,7 +232,7 @@ class AudioPlayer {
             document.querySelector('.current-song-image').src = song.coverImage;
             
             // Update play count
-            await fetch(`/api/songs/${songId}/play`, { method: 'PUT' });
+            await apiRequest(`/songs/${songId}/play`, { method: 'PUT' });
             
             // Save state
             this.savePlaybackState();
@@ -263,7 +299,7 @@ class AudioPlayer {
 
     async savePlaybackState() {
         try {
-            await fetch('/api/playback-state', {
+            await apiRequest('/playback-state', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

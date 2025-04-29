@@ -95,6 +95,16 @@
             color: #b3b3b3;
             font-size: 14px;
         }
+        .profile-username {
+            color: var(--primary-grey);
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .profile-email {
+            color: var(--primary-grey);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -177,7 +187,9 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="profile-info">
-                    <h1>User Name</h1>
+                    <h1 id="profile-name">Loading...</h1>
+                    <p id="profile-username" class="profile-username">@username</p>
+                    <p id="profile-email" class="profile-email">email@example.com</p>
                     <div class="profile-stats">
                         <div class="stat-item">Playlists <span>12</span></div>
                     </div>
@@ -251,5 +263,45 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            // Get display name from user data
+            let displayName = user.name;
+            
+            // If name is not available, try to get it from email
+            if (!displayName && user.email) {
+                displayName = user.email.split('@')[0];
+                // Capitalize first letter
+                displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            }
+            
+            // If still no display name, use username
+            if (!displayName && user.username) {
+                displayName = user.username;
+            }
+            
+            // If still no display name, use a default
+            if (!displayName) {
+                displayName = 'User';
+            }
+            
+            // Update profile information
+            document.getElementById('profile-name').textContent = displayName;
+            if (user.username) {
+                document.getElementById('profile-username').textContent = `@${user.username}`;
+            }
+            if (user.email) {
+                document.getElementById('profile-email').textContent = user.email;
+            }
+            
+            // Update profile image if available
+            const profileImage = document.querySelector('.profile-image img');
+            if (user.profileImage) {
+                profileImage.src = user.profileImage;
+            }
+        });
+    </script>
 </body>
 </html> 

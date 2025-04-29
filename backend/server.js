@@ -4,22 +4,31 @@ const path = require('path');
 const { Pool } = require('pg');
 const Users = require('./models/users');
 const sequelize = require('./db');
+const passport = require('./config/passport');
+const authRoutes = require('./routes/auth');
+require('dotenv').config();
 
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5500',
-    methods: ['GET', 'POST'],
+    origin: 'http://localhost:8080',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 app.use(express.json());
 
+// Initialize Passport
+app.use(passport.initialize());
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'spotify',
-    password: 'wendy', 
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'spotify',
+    password: process.env.DB_PASSWORD || 'postgres', 
+    port: process.env.DB_PORT || 5432,
 });
 
 async function initializeDatabase() {
@@ -237,9 +246,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`Frontend available at http://localhost:${PORT}`);
+    console.log(`Frontend available at http://localhost:8080`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });

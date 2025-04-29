@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="./styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Config -->
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
 </head>
 <script src="js/musicPlayer.js"></script>
 <script>
@@ -107,18 +110,23 @@
     <div class="main-container">
         <div class="topbar">
             <div class="prev-next-buttons">
-                <button type="button" id="prev-button"><i class="fas fa-chevron-left"></i></button>
-                <button type="button" id="next-button"><i class="fas fa-chevron-right"></i></button>
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button><i class="fas fa-chevron-right"></i></button>
             </div>
 
             <div class="navbar">
                 <ul>
                     <li>
-                        <a href="signup.html">Sign Up</a>
+                        <a href="#">Premium</a>
+                    </li>
+                    <li>
+                        <a href="#">Download</a>
                     </li>
                     <li class="divider">|</li>
                 </ul>
-                <button type="button" onclick="window.location.href='login.html'">Log In</button>
+                <div class="navbar-right">
+                    <!-- This will be updated by common.js -->
+                </div>
             </div>
         </div>
 
