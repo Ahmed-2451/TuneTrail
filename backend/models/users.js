@@ -31,6 +31,10 @@ const Users = sequelize.define('Users', {
   isAdmin: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  chatHistory: {
+    type: DataTypes.JSON,
+    defaultValue: []
   }
 });
 

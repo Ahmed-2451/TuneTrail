@@ -6,6 +6,7 @@ const Users = require('./models/users');
 const sequelize = require('./db');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -22,6 +23,9 @@ app.use(passport.initialize());
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Chatbot routes
+app.use('/api/chatbot', chatbotRoutes);
 
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
