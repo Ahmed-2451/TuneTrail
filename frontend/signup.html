@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Spotify</title>
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="CSS/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Config -->
-    <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
+
 </head>
 <body class="auth-page">
     <div class="auth-container">
@@ -57,58 +55,9 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const signupForm = document.getElementById('signup-form');
-            const googleSignupBtn = document.getElementById('google-signup-btn');
-            
-            // Handle regular signup
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-                const name = document.getElementById('name').value;
-                const username = document.getElementById('username').value;
-                
-                // Validate passwords match
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
-                    return;
-                }
-                
-                try {
-                    const response = await apiRequest('/auth/signup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email, password, name, username })
-                    });
-                    
-                    if (!response) return;
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('isAuthenticated', 'true');
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                        window.location.href = 'index.html';
-                    } else {
-                        alert(data.message || 'Signup failed');
-                    }
-                } catch (error) {
-                    console.error('Signup error:', error);
-                    alert('An error occurred during signup');
-                }
-            });
-            
-            // Handle Google signup
-            googleSignupBtn.addEventListener('click', () => {
-                window.location.href = `${config.API_URL}/auth/google`;
-            });
-        });
-    </script>
+
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/signup.js"></script>
 </body>
 </html> 

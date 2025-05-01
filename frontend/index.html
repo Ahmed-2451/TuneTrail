@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify</title>
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="CSS/styles.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
@@ -13,26 +13,7 @@
     <script src="js/config.js"></script>
     <script src="js/common.js"></script>
 </head>
-<script src="js/musicPlayer.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        window.player = new MusicPlayer();
 
-        document.querySelectorAll('.playlist-card').forEach((card, index) => {
-            card.addEventListener('click', async () => {
-                await window.player.loadTrack(index);
-                window.player.togglePlayPause();
-            });
-        });
-
-        document.querySelectorAll('.quick-access-card').forEach((card, index) => {
-            card.addEventListener('click', async () => {
-                await window.player.loadTrack(index);
-                window.player.togglePlayPause();
-            });
-        });
-    });
-</script>
 <body>
     <!-- sidebar -->
     <div class="sidebar">
@@ -238,7 +219,7 @@
     <div class="player">
         <div class="now-playing">
             <div class="song-info">
-                <img src="images\image.jpg" alt="Current Song" class="current-song-image">
+                <img src="images/image.jpg" alt="Current Song" class="current-song-image">
                 <div class="song-details">
                     <h4>K.</h4>
                     <p>Cigarettes After Sex</p>
@@ -269,6 +250,8 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="js/musicPlayer.js"></script>
+    <script src="js/liked-songs.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

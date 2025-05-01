@@ -1,5 +1,6 @@
 class MusicPlayer {
     constructor() {
+        console.log('MusicPlayer constructor called');
         this.audio = new Audio();
         this.tracks = [];
         this.currentTrackIndex = parseInt(localStorage.getItem('currentTrackIndex')) || 0;
@@ -12,6 +13,7 @@ class MusicPlayer {
         
         // Load tracks and restore state
         this.loadTracks().then(() => {
+            console.log(`Loaded ${this.tracks.length} tracks`);
             const savedTime = parseFloat(localStorage.getItem('currentTime')) || 0;
             const savedTrack = localStorage.getItem('currentTrack');
             
@@ -34,7 +36,11 @@ class MusicPlayer {
                     });
                     this.updatePlayButton(true);
                 }
+            } else {
+                console.log('No tracks found or tracks array is empty');
             }
+        }).catch(error => {
+            console.error('Error in loadTracks promise:', error);
         });
         
         this.updateActiveSong(this.currentTrackIndex);
@@ -76,9 +82,6 @@ class MusicPlayer {
         });
         
         this.audio.addEventListener('ended', () => this.playNext());
-        this.audio.addEventListener('loadedmetadata', () => {
-            this.totalTimeSpan.textContent = this.formatTime(this.audio.duration);
-        });
 
         // Save state before page unload
         window.addEventListener('beforeunload', () => this.saveState());
@@ -86,12 +89,60 @@ class MusicPlayer {
 
     async loadTracks() {
         try {
-            const response = await fetch('http://localhost:3001/api/tracks');
-            this.tracks = await response.json();
+            console.log('Fetching tracks from API...');
+            const apiUrl = 'http://localhost:3001/api/tracks';
+            console.log('API URL:', apiUrl);
+            
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log(`Received ${data.length} tracks from API`);
+            
+            // Ensure duration values are numbers
+            this.tracks = data.map(track => {
+                // If duration exists but is a string, convert to number
+                if (track.duration && typeof track.duration === 'string') {
+                    track.duration = parseFloat(track.duration);
+                }
+                
+                // If duration is invalid or doesn't exist, use file metadata when available
+                if (!track.duration || isNaN(track.duration) || track.duration <= 0) {
+                    // Will be set when audio loads
+                    track.duration = 0;
+                }
+                
+                return track;
+            });
+            
             return this.tracks;
         } catch (error) {
             console.error('Error loading tracks:', error);
-            return [];
+            // Fallback to some sample tracks if API is not available
+            this.tracks = [
+                {
+                    id: '1',
+                    title: 'K.',
+                    artist: 'Cigarettes After Sex',
+                    album: 'K.',
+                    cover_url: 'images/image.jpg',
+                    filename: 'song1.mp3',
+                    duration: 210
+                },
+                {
+                    id: '2',
+                    title: 'Nothing\'s Gonna Hurt You Baby',
+                    artist: 'Cigarettes After Sex',
+                    album: 'I.',
+                    cover_url: 'images/image.jpg',
+                    filename: 'song2.mp3',
+                    duration: 195
+                }
+            ];
+            console.log('Using fallback tracks:', this.tracks);
+            return this.tracks;
         }
     }
 
@@ -99,6 +150,8 @@ class MusicPlayer {
         if (index >= 0 && index < this.tracks.length) {
             const track = this.tracks[index];
             this.audio.src = `http://localhost:3001/tracks/${encodeURIComponent(track.filename)}`;
+            
+            // Update track info
             this.songTitle.textContent = track.title;
             this.songArtist.textContent = track.artist;
             this.songImage.src = track.cover_url;
@@ -108,6 +161,26 @@ class MusicPlayer {
 
             // Update active song highlighting
             this.updateActiveSong(index);
+            
+            // Set up metadata loading
+            this.audio.addEventListener('loadedmetadata', () => {
+                // Update track duration if it was 0 or invalid
+                if (!track.duration || track.duration <= 0) {
+                    track.duration = this.audio.duration;
+                    console.log(`Updated duration for track ${track.title} to ${track.duration}`);
+                    
+                    // Update duration display in track list if present
+                    const trackRows = document.querySelectorAll('#tracks-container tr');
+                    if (trackRows[index]) {
+                        const durationCell = trackRows[index].querySelector('.track-duration');
+                        if (durationCell) {
+                            durationCell.textContent = this.formatTime(track.duration);
+                        }
+                    }
+                }
+                
+                this.totalTimeSpan.textContent = this.formatTime(this.audio.duration);
+            }, { once: true });  // only run once per track load
 
             if (shouldPlay) {
                 await this.audio.play();
@@ -214,6 +287,10 @@ class MusicPlayer {
     }
 
     formatTime(seconds) {
+        if (!seconds || isNaN(seconds) || seconds < 0) {
+            return '0:00';
+        }
+        
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;

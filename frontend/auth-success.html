@@ -4,46 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authentication Success - Spotify</title>
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="CSS/styles.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Config -->
-    <script src="js/config.js"></script>
-    <style>
-        .auth-success-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-            padding: 20px;
-        }
-        .auth-success-container h1 {
-            color: #1db954;
-            margin-bottom: 20px;
-        }
-        .auth-success-container p {
-            margin-bottom: 30px;
-            font-size: 18px;
-        }
-        .auth-success-container .btn {
-            background-color: #1db954;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .auth-success-container .btn:hover {
-            background-color: #1ed760;
-        }
-    </style>
+   
 </head>
 <body>
     <div class="auth-success-container">
@@ -52,31 +18,8 @@
         <button class="btn" id="redirect-btn">Go to Home</button>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get token from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            
-            if (token) {
-                // Store token in localStorage
-                localStorage.setItem('token', token);
-                localStorage.setItem('isAuthenticated', 'true');
-                
-                // Redirect to home page after 3 seconds
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
-            } else {
-                // If no token, redirect to login page
-                window.location.href = 'login.html';
-            }
-            
-            // Manual redirect button
-            document.getElementById('redirect-btn').addEventListener('click', () => {
-                window.location.href = 'index.html';
-            });
-        });
-    </script>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth-success.js"></script>
 </body>
 </html> 
