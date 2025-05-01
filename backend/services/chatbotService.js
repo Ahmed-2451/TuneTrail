@@ -1,18 +1,19 @@
 const fetch = require('node-fetch');
 const Users = require('../models/users');
 const fallbackService = require('./fallbackChatbotService');
+require('dotenv').config();
 
-// Configuration options - can be moved to environment variables
+// Configuration options from environment variables
 const config = {
   // Astra DB Langflow API Configuration
-  ASTRA_API_URL: process.env.ASTRA_API_URL || 'https://api.langflow.astra.datastax.com/lf/30d958ec-060d-462e-8a6b-add816d19be6/api/v1/run/681fbcd2-90db-4616-b22b-602e588284f1',
-  ASTRA_TOKEN: process.env.ASTRA_TOKEN || 'AstraCS:uNaZRDvGGjvvqhAmdSXsPbTp:27711d60c263bd7b2daad948eb7cbcdc2dbc253ad9ada899187acad2da29d696',
+  ASTRA_API_URL: process.env.ASTRA_API_URL,
+  ASTRA_TOKEN: process.env.ASTRA_TOKEN,
   
   // Controls whether to use the Astra API or fallback service
   USE_FALLBACK: process.env.USE_FALLBACK === 'false' ? false : true,
   
   // Maximum number of chat history messages to store
-  MAX_HISTORY_LENGTH: 20
+  MAX_HISTORY_LENGTH: parseInt(process.env.MAX_HISTORY_LENGTH || '20')
 };
 
 /**

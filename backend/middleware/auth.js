@@ -1,5 +1,6 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 // Middleware to authenticate JWT
 const authenticateJWT = (req, res, next) => {
@@ -25,9 +26,14 @@ const isAdmin = (req, res, next) => {
 
 // Generate JWT token
 const generateToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not defined in environment variables');
+    throw new Error('JWT_SECRET is not configured');
+  }
+  
   return jwt.sign(
     { id: user.id, email: user.email, isAdmin: user.isAdmin },
-    process.env.JWT_SECRET || 'spotify_clone_secret_key_2024',
+    process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION || '24h' }
   );
 };
