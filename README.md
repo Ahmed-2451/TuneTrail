@@ -51,6 +51,12 @@ A web-based Spotify clone with music playback, playlists, and an AI chatbot assi
    
    # Max chat history length
    MAX_HISTORY_LENGTH=20
+
+
+
+   GOOGLE_CLIENT_ID=your_client_id_here
+   GOOGLE_CLIENT_SECRET=your_client_secret_here
+   GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
    ```
 
 4. Start the backend server:
