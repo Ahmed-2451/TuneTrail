@@ -2394,3 +2394,88 @@ button:hover {
 .profile-spacing {
     height: 120px;
 }
+
+/* Streaming styles */
+.stream-controls {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #282828;
+    border-radius: 8px;
+    color: white;
+}
+
+.stream-controls h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #1DB954;
+}
+
+.stream-controls button {
+    background: #1DB954;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 10px 0;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.stream-controls button:hover {
+    background: #1ed760;
+}
+
+.stream-controls input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    background: #404040;
+    color: white;
+}
+
+.stream-controls input::placeholder {
+    color: #b3b3b3;
+}
+
+.status {
+    text-align: center;
+    margin-top: 1rem;
+    color: #b3b3b3;
+}
+
+.hidden {
+    display: none;
+}
+
+#stream-id {
+    color: #1DB954;
+    font-weight: bold;
+}
+
+#streamer-controls, #listener-controls {
+    margin-top: 1rem;
+}
+
+/* Stream messages styles */
+.stream-messages {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #181818;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.stream-message {
+    color: #1DB954;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 4px;
+    background: #282828;
+    font-size: 0.9rem;
+}

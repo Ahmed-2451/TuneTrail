@@ -8,9 +8,14 @@ const sequelize = require('./config/db');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
 const chatbotRoutes = require('./routes/chatbotRoutes');
-require('dotenv').config();
+const { createServer } = require('http');
+const { initializeSocketIO } = require('./streaming');
 
 const app = express();
+const server = createServer(app);
+
+// Initialize Socket.IO
+initializeSocketIO(server);
 
 app.use(cors({
     origin: 'http://localhost:8080',
@@ -251,9 +256,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
     console.log(`Frontend available at http://localhost:8080`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });
