@@ -177,10 +177,20 @@ function initChatbot() {
                     const sender = msg.role === 'user' ? 'user' : 'bot';
                     addMessage(msg.content, sender, type);
                 });
+            } else {
+                // Add welcome message if chat history is empty
+                const welcomeMessage = type === 'music'
+                    ? 'Music assistant ready.'
+                    : 'General assistant ready.';
+                addMessage(welcomeMessage, 'bot', type);
             }
         })
         .catch(error => {
-            // Optionally show error
+            // If there's an error loading chat history, show welcome message
+            const welcomeMessage = type === 'music'
+                ? 'Music assistant ready.'
+                : 'General assistant ready.';
+            addMessage(welcomeMessage, 'bot', type);
         });
     }
 
@@ -212,8 +222,8 @@ function initChatbot() {
                 const elements = getChatbotElements(type);
                 elements.messages.innerHTML = '';
                 const welcomeMessage = type === 'music'
-                    ? 'Hello! I\'m your music assistant. Ask me about song recommendations, creating playlists, or how to use any feature!'
-                    : 'Hello! I\'m your general AI assistant. I can help you with various tasks and engage in meaningful conversations!';
+                    ? 'Music assistant ready.'
+                    : 'General assistant ready.';
                 addMessage(welcomeMessage, 'bot', type);
             })
             .catch(error => {

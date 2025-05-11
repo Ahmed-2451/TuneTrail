@@ -1,100 +1,110 @@
 # Spotify Clone
 
-A web-based Spotify clone with music playback, playlists, and an AI chatbot assistant.
-
-## Project Structure
-
-- **Frontend**: HTML/CSS/JavaScript web interface
-- **Backend**: Express.js server with PostgreSQL database
-- **AI Chatbot**: Music assistant powered by DataStax Astra's Langflow API
+A full-featured Spotify clone application with music playback, playlists, user accounts, and AI-powered chatbots.
 
 ## Features
 
-- Music playback controls (play, pause, next, previous)
-- User profiles and playlists
-- Search functionality for tracks and artists
-- AI chatbot assistant for music recommendations and help
+- **Music Playback**: Stream and play music with full player controls
+- **User Authentication**: Login, signup, and profile management
+- **Responsive Design**: Works on desktop and mobile devices
+- **AI Chatbots**: Music-specific and general assistant chatbots
+- **Search Functionality**: Find songs, artists, and albums
 
-## Setup Instructions
+## Tech Stack
 
-### Backend Setup
+### Frontend
+- HTML, CSS, JavaScript
+- Modern responsive design
+- Streaming audio playback
 
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+### Backend
+- Node.js
+- Express.js
+- PostgreSQL database
+- Sequelize ORM
+- JWT authentication
+- WebSockets for streaming
 
-2. Install dependencies:
-   ```
-   npm install
-   ```
+## Installation
 
-3. Create a `.env` file with the following variables:
-   ```
-   # Astra DB Langflow API Configuration
-   ASTRA_API_URL=your_astra_api_url
-   ASTRA_TOKEN=your_astra_token
-   
-   # Fallback settings
-   USE_FALLBACK=true
-   
-   # Database Configuration
-   DB_NAME=spotify_clone
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   DB_HOST=localhost
-   DB_PORT=5432
-   
-   # Server Configuration
-   PORT=3001
-   JWT_SECRET=your_jwt_secret_key
-   
-   # Max chat history length
-   MAX_HISTORY_LENGTH=20
+### Prerequisites
+- Node.js (v16+)
+- PostgreSQL
 
+### Setup
 
+1. Clone the repository
+```
+git clone https://github.com/Ahmed-2451/Spotify-Clone
+cd Spotify-Clone
+```
 
-   GOOGLE_CLIENT_ID=your_client_id_here
-   GOOGLE_CLIENT_SECRET=your_client_secret_here
-   GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
-   ```
+2. Install backend dependencies
+```
+cd backend
+npm install
+```
 
-4. Start the backend server:
-   ```
-   node server.js
-   ```
+3. Create a `.env` file in the backend directory with the following:
+```
+# Database Configuration
+DB_NAME=spotify
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
 
-### Frontend Setup
+# Server Configuration
+PORT=3001
 
-1. Open another terminal and navigate to the frontend directory:
-   ```
-   cd frontend
-   ```
+# JWT Secret
+JWT_SECRET=your_jwt_secret_key_here
 
-2. Serve the frontend using a local web server. For example, with the LiveServer VSCode extension or any static file server.
+# OpenRouter API (for chatbot)
+OPENROUTER_API_KEY=your_openrouter_api_key
+MAX_HISTORY_LENGTH=20
+GOOGLE_CLIENT_ID=your_client_id_here
+GOOGLE_CLIENT_SECRET=your_client_secret_here
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+```
 
-3. Access the application at `http://localhost:8080` (or your configured port).
+4. Start the backend server
+```
+node server.js
+```
 
-## Security
+5. Open the frontend in your browser
+```
+http://localhost:3001
+```
 
-- **API Tokens**: Never commit your API tokens to the repository. Use the `.env` file which is excluded in `.gitignore`.
-- **Environment Variables**: Keep sensitive configuration in environment variables.
-- **Token Rotation**: Regularly rotate your security tokens.
+## Chatbot Features
 
-## AI Chatbot
+The application includes two AI-powered chatbots:
 
-The AI chatbot helps users discover music and provides assistance with the app. It operates in two modes:
+1. **Music Assistant**: Helps with music recommendations, playlist creation, and app features
+2. **General Assistant**: Answers general questions and provides conversation
 
-1. **Astra DB Langflow API**: Uses external AI service for responses
-2. **Fallback Service**: Uses a local service with predefined responses
+## Project Structure
 
-## Technologies Used
+- `/backend`: Node.js server, API endpoints, database models
+  - `/config`: Database and authentication configuration
+  - `/models`: Sequelize data models
+  - `/routes`: API route handlers
+  - `/services`: Business logic and services
+  - `/middleware`: Express middleware
+- `/frontend`: Client-side application
+  - `/CSS`: Stylesheets
+  - `/js`: JavaScript modules
+  - `/images`: Static images
 
-- **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL, Sequelize ORM
-- **AI**: DataStax Astra Langflow API
+## Future Enhancements
+
+- Social features (follow users, share playlists)
+- Advanced recommendation engine
+- Mobile app version
+- Offline mode
 
 ## License
 
-MIT License 
+MIT License - See LICENSE file for details. 

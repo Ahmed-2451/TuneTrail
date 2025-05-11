@@ -42,7 +42,7 @@ class GeneralChatbotService {
       const messages = [
         {
           role: "system",
-          content: `You are a helpful, concise AI assistant. Always provide answers that are summarized, to the point, and easy to read. Avoid unnecessary details and keep responses brief unless the user asks for more information.`
+          content: `Extremely summarized responses only. Maximum 2 sentences. No unnecessary words. Get to the point immediately. Do not use phrases like "I'd be happy to" or "That's an interesting question". Avoid all pleasantries. For weather questions, simply state "No access to weather data." Prioritize brevity over detail.`
         }
       ];
 
@@ -67,7 +67,8 @@ class GeneralChatbotService {
           "https://openrouter.ai/api/v1/chat/completions",
           {
             model: "mistralai/mistral-7b-instruct",
-            messages: messages
+            messages: messages,
+            temperature: 0.3  // Lower temperature for more concise responses
           },
           {
             headers: {
@@ -84,14 +85,14 @@ class GeneralChatbotService {
           message: botMessage,
           chatHistory: user.chatHistory,
           nlpInsights: {
-            sentiment,
-            keywords,
-            intent
+            sentiment: this.analyzeSentiment(message),
+            keywords: this.extractKeywords(message),
+            intent: this.detectIntent(message)
           }
         };
       } catch (error) {
         console.error('OpenRouter API Error:', error.response?.data || error);
-        return this.getMockResponse(message, sentiment, keywords, intent, chatHistory);
+        return this.getMockResponse(message, this.analyzeSentiment(message), this.extractKeywords(message), this.detectIntent(message), chatHistory);
       }
     } catch (error) {
       console.error('Error in general chatbot service:', error);
@@ -105,31 +106,31 @@ class GeneralChatbotService {
     // Handle different intents
     switch (intent) {
       case 'weather':
-        response = "I'm sorry, I don't have access to real-time weather data. However, I can help you with other tasks or engage in conversation!";
+        response = "No access to weather data.";
         break;
       case 'actor':
-        response = "That's a subjective question! Some of the most acclaimed actors include Meryl Streep, Daniel Day-Lewis, and Denzel Washington. However, the 'best' actor is often a matter of personal preference and the specific roles they've played. Who are some of your favorite actors?";
+        response = "Top actors include Streep, Day-Lewis, and Washington. Who's your favorite?";
         break;
       case 'movie':
-        response = "Movies are a great topic! There are so many amazing films across different genres. Are you looking for recommendations in a particular genre, or would you like to discuss specific movies?";
+        response = "Need genre-specific recommendations?";
         break;
       case 'question':
-        response = "That's an interesting question! While I can't provide real-time information, I'd be happy to discuss this topic with you or help you with other tasks.";
+        response = "Can't provide real-time info. What else interests you?";
         break;
       case 'gratitude':
-        response = "You're welcome! I'm here to help. Is there anything else you'd like to talk about?";
+        response = "You're welcome. Need anything else?";
         break;
       case 'help':
-        response = "I'm here to help! I can assist you with various tasks, answer questions, or just chat. What would you like to do?";
+        response = "Can assist with questions or conversation. What's on your mind?";
         break;
       case 'farewell':
-        response = "Goodbye! Feel free to come back anytime you need assistance.";
+        response = "Goodbye!";
         break;
       default:
         if (keywords.length > 0) {
-          response = `I understand you're interested in ${keywords.join(', ')}. I'd be happy to discuss this with you or help you with other tasks. What would you like to know?`;
+          response = `Topic: ${keywords.join(', ')}. What specifically interests you?`;
         } else {
-          response = "I'd be happy to chat with you about various topics. What interests you?";
+          response = "What would you like to know?";
         }
     }
 

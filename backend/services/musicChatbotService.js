@@ -18,25 +18,7 @@ class MusicChatbotService {
       const messages = [
         {
           role: "system",
-          content: `You are a specialized music recommendation assistant for a Spotify clone. Your expertise is in music recommendations, playlist creation, and music-related queries. 
-          
-When users ask for recommendations:
-1. Ask about their preferred genres, artists, or mood
-2. Suggest specific songs and artists based on their preferences
-3. Explain why you're recommending each song
-4. Offer to create a playlist based on the recommendations
-
-When users ask about playlists:
-1. Help them create themed playlists
-2. Suggest songs that would fit well together
-3. Consider the mood, genre, and era of the songs
-
-When users ask about features:
-1. Explain how to use the Spotify clone features
-2. Provide step-by-step instructions
-3. Give examples of how to use each feature
-
-Always be enthusiastic about music and maintain a friendly, helpful tone.`
+          content: `Music recommendation assistant. Extremely summarized responses only. Maximum 2 sentences. No unnecessary words. Skip all greetings and pleasantries. For recommendations, just name 1-2 songs or artists with minimal explanation. For feature instructions, use bullet points with 3 or fewer steps.`
         }
       ];
 
@@ -61,7 +43,8 @@ Always be enthusiastic about music and maintain a friendly, helpful tone.`
           "https://openrouter.ai/api/v1/chat/completions",
           {
             model: "mistralai/mistral-7b-instruct",
-            messages: messages
+            messages: messages,
+            temperature: 0.3  // Lower temperature for more concise responses
           },
           {
             headers: {
@@ -93,22 +76,22 @@ Always be enthusiastic about music and maintain a friendly, helpful tone.`
     
     if (lowerMessage.includes('recommend') || lowerMessage.includes('suggestion')) {
       return {
-        message: "I'd be happy to recommend some music! To help me give you the best recommendations, could you tell me:\n1. What genres do you enjoy?\n2. Who are some of your favorite artists?\n3. What mood are you looking for?",
+        message: "What genres or artists do you like?",
         chatHistory: chatHistory
       };
     } else if (lowerMessage.includes('playlist')) {
       return {
-        message: "I can help you create a playlist! Would you like to create a playlist based on:\n1. A specific genre\n2. A particular mood\n3. Your favorite artists\n4. A specific theme or occasion",
+        message: "Theme preference: genre, mood, artist, or occasion?",
         chatHistory: chatHistory
       };
     } else if (lowerMessage.includes('feature') || lowerMessage.includes('how to')) {
       return {
-        message: "I can help you with using our features! Here are some things I can help you with:\n1. Creating and managing playlists\n2. Finding new music\n3. Using the search function\n4. Managing your profile\nWhat would you like to know more about?",
+        message: "Which feature? Playlists, search, or profile management?",
         chatHistory: chatHistory
       };
     } else {
       return {
-        message: "I'm your music assistant! I can help you with:\n1. Music recommendations\n2. Creating playlists\n3. Using features\n4. Finding new artists\nWhat would you like to explore?",
+        message: "Ask about recommendations, playlists, or features.",
         chatHistory: chatHistory
       };
     }
