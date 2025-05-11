@@ -6,87 +6,83 @@ function handleLogout() {
 }
 
 function initChatbot() {
-    const chatbotMessages = document.getElementById('chatbot-messages');
-    const chatbotInput = document.getElementById('chatbot-input');
-    const chatbotSend = document.getElementById('chatbot-send');
-    const exportChatBtn = document.getElementById('export-chat');
-    const clearChatBtn = document.getElementById('clear-chat');
+    // New selectors for popup structure
+    const musicChatbotMessages = document.getElementById('musicChatbotMessages');
+    const musicChatbotInput = document.getElementById('musicChatbotInput');
+    const musicChatbotSend = document.getElementById('musicChatbotSend');
+    const musicExportChatBtn = document.getElementById('musicExportChatBtn');
+    const musicClearChatBtn = document.getElementById('musicClearChatBtn');
+
+    const generalChatbotMessages = document.getElementById('generalChatbotMessages');
+    const generalChatbotInput = document.getElementById('generalChatbotInput');
+    const generalChatbotSend = document.getElementById('generalChatbotSend');
+    const generalExportChatBtn = document.getElementById('generalExportChatBtn');
+    const generalClearChatBtn = document.getElementById('generalClearChatBtn');
+
     const token = localStorage.getItem('token');
-    
+
     // Check if token exists
     if (!token) {
-        console.error('No token found in localStorage');
-        addMessage('Please log in to use the chatbot feature.', 'bot');
-        chatbotInput.disabled = true;
-        chatbotSend.disabled = true;
+        addMessage('Please log in to use the chatbot features.', 'bot', 'music');
+        addMessage('Please log in to use the chatbot features.', 'bot', 'general');
+        disableChatbot('music');
+        disableChatbot('general');
         return;
     }
-    
+
     // Validate token format
     try {
         const tokenParts = token.split('.');
         if (tokenParts.length !== 3) {
             throw new Error('Invalid token format');
         }
-        
-        // Decode payload (without verification)
         const payload = JSON.parse(atob(tokenParts[1]));
-        
-        // Check if token is expired
         const expiryDate = new Date(payload.exp * 1000);
         if (expiryDate < new Date()) {
-            console.error('Token expired at', expiryDate);
-            addMessage('Your session has expired. Please log in again.', 'bot');
-            chatbotInput.disabled = true;
-            chatbotSend.disabled = true;
+            addMessage('Your session has expired. Please log in again.', 'bot', 'music');
+            addMessage('Your session has expired. Please log in again.', 'bot', 'general');
+            disableChatbot('music');
+            disableChatbot('general');
             return;
         }
-        
-        console.log('Token valid until', expiryDate);
     } catch (error) {
-        console.error('Token validation error:', error);
-        addMessage('There was an issue with your authentication. Please log in again.', 'bot');
-        chatbotInput.disabled = true;
-        chatbotSend.disabled = true;
+        addMessage('There was an issue with your authentication. Please log in again.', 'bot', 'music');
+        addMessage('There was an issue with your authentication. Please log in again.', 'bot', 'general');
+        disableChatbot('music');
+        disableChatbot('general');
         return;
     }
-    
-    // Load chat history if available
-    loadChatHistory();
-    
-    // Send message on button click
-    chatbotSend.addEventListener('click', () => {
-        sendMessage();
-    });
-    
-    // Send message on Enter key
-    chatbotInput.addEventListener('keydown', (e) => {
+
+    // Load chat history for both chatbots
+    loadChatHistory('music');
+    loadChatHistory('general');
+
+    // Set up event listeners for music chatbot
+    musicChatbotSend.addEventListener('click', () => sendMessage('music'));
+    musicChatbotInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-            sendMessage();
+            sendMessage('music');
         }
     });
-    
-    // Export chat history
-    exportChatBtn.addEventListener('click', () => {
-        exportChatHistory();
+    musicExportChatBtn.addEventListener('click', () => exportChatHistory('music'));
+    musicClearChatBtn.addEventListener('click', () => clearChatHistory('music'));
+
+    // Set up event listeners for general chatbot
+    generalChatbotSend.addEventListener('click', () => sendMessage('general'));
+    generalChatbotInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage('general');
+        }
     });
-    
-    // Clear chat history
-    clearChatBtn.addEventListener('click', () => {
-        clearChatHistory();
-    });
-    
-    function sendMessage() {
-        const message = chatbotInput.value.trim();
+    generalExportChatBtn.addEventListener('click', () => exportChatHistory('general'));
+    generalClearChatBtn.addEventListener('click', () => clearChatHistory('general'));
+
+    function sendMessage(type) {
+        const elements = getChatbotElements(type);
+        const message = elements.input.value.trim();
         if (!message) return;
-        
-        // Clear input
-        chatbotInput.value = '';
-        
-        // Add user message to chat
-        addMessage(message, 'user');
-        
-        // Show typing indicator
+        elements.input.value = '';
+        addMessage(message, 'user', type);
         const typingIndicator = document.createElement('div');
         typingIndicator.className = 'chatbot-message bot';
         typingIndicator.innerHTML = `
@@ -99,81 +95,57 @@ function initChatbot() {
                 <span></span>
             </div>
         `;
-        chatbotMessages.appendChild(typingIndicator);
-        
-        // Scroll to bottom
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-        
-        // Debug token
-        console.log('Token being used:', token ? `${token.substring(0, 15)}...` : 'No token found');
-        
-        // Send message to API
-        fetch('http://localhost:3001/api/chatbot/message', {
+        elements.messages.appendChild(typingIndicator);
+        elements.messages.scrollTop = elements.messages.scrollHeight;
+        fetch(`http://localhost:3001/api/chatbot/${type}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({ message })
         })
         .then(response => {
-            console.log('API Response status:', response.status);
             if (!response.ok) {
-                return response.text().then(text => {
-                    console.error('API Error Response:', text);
-                    throw new Error('Failed to get response from chatbot: ' + text);
-                });
+                return response.text().then(text => { throw new Error(text); });
             }
             return response.json();
         })
         .then(data => {
-            console.log('Chatbot API response data:', data);
-            // Remove typing indicator
             if (typingIndicator.parentNode) {
-                chatbotMessages.removeChild(typingIndicator);
+                elements.messages.removeChild(typingIndicator);
             }
-            
-            // Validate the response format
-            if (!data) {
-                throw new Error('Empty response from server');
-            }
-            
-            // Add bot message
+            if (!data) throw new Error('Empty response from server');
             if (data && data.message) {
-                addMessage(data.message, 'bot');
+                addMessage(data.message, 'bot', type);
             } else {
-                console.error('Invalid response format - missing message property:', data);
-                addMessage('Sorry, I received an invalid response. Please try again.', 'bot');
+                addMessage('Sorry, I received an invalid response. Please try again.', 'bot', type);
             }
         })
         .catch(error => {
-            console.error('Chatbot error:', error);
-            
-            // Remove typing indicator
             if (typingIndicator.parentNode) {
-                chatbotMessages.removeChild(typingIndicator);
+                elements.messages.removeChild(typingIndicator);
             }
-            
             if (error.message.includes('401') || error.message.includes('Authentication')) {
-                addMessage('Your session has expired. Please refresh the page and log in again.', 'bot');
-                // Disable further messages
-                chatbotInput.disabled = true;
-                chatbotSend.disabled = true;
+                addMessage('Your session has expired. Please refresh the page and log in again.', 'bot', type);
+                disableChatbot(type);
             } else {
-                // Add error message
-                addMessage('Sorry, I encountered an error. Please try again later.', 'bot');
+                addMessage('Sorry, I encountered an error. Please try again later.', 'bot', type);
             }
         });
     }
-    
-    function addMessage(message, sender) {
+
+    function addMessage(message, sender, type) {
+        const elements = getChatbotElements(type);
         const messageElement = document.createElement('div');
         messageElement.className = `chatbot-message ${sender}`;
-        
-        const avatar = sender === 'user' ? 
-            '<i class="fas fa-user"></i>' : 
+        const avatar = sender === 'user' ?
+            '<i class="fas fa-user"></i>' :
+            sender === 'system' ?
+            '<i class="fas fa-info-circle"></i>' :
+            type === 'music' ?
+            '<i class="fas fa-music"></i>' :
             '<i class="fas fa-robot"></i>';
-        
         messageElement.innerHTML = `
             <div class="message-avatar">
                 ${avatar}
@@ -182,128 +154,123 @@ function initChatbot() {
                 <p>${message}</p>
             </div>
         `;
-        
-        chatbotMessages.appendChild(messageElement);
-        
-        // Scroll to bottom
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        elements.messages.appendChild(messageElement);
+        elements.messages.scrollTop = elements.messages.scrollHeight;
     }
-    
-    function loadChatHistory() {
-        if (!token) return;
-        
-        fetch('http://localhost:3001/api/chatbot/history', {
+
+    function loadChatHistory(type) {
+        if (!localStorage.getItem('token')) return;
+        fetch(`http://localhost:3001/api/chatbot/${type}/history`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load chat history');
-            }
+            if (!response.ok) throw new Error('Failed to load chat history');
             return response.json();
         })
         .then(data => {
             if (data.chatHistory && data.chatHistory.length > 0) {
-                // Clear initial welcome message
-                chatbotMessages.innerHTML = '';
-                
-                // Add messages from history
+                const elements = getChatbotElements(type);
+                elements.messages.innerHTML = '';
                 data.chatHistory.forEach(msg => {
                     const sender = msg.role === 'user' ? 'user' : 'bot';
-                    addMessage(msg.content, sender);
+                    addMessage(msg.content, sender, type);
                 });
             }
         })
         .catch(error => {
-            console.error('Failed to load chat history:', error);
+            // Optionally show error
         });
     }
-    
-    function exportChatHistory() {
-        if (!token) {
+
+    function exportChatHistory(type) {
+        if (!localStorage.getItem('token')) {
             alert('You need to be logged in to export chat history');
             return;
         }
-        
-        // Open the export URL in a new tab
-        window.open('http://localhost:3001/api/chatbot/export', '_blank');
+        window.open(`http://localhost:3001/api/chatbot/${type}/export`, '_blank');
     }
-    
-    function clearChatHistory() {
-        if (!token) {
+
+    function clearChatHistory(type) {
+        if (!localStorage.getItem('token')) {
             alert('You need to be logged in to clear chat history');
             return;
         }
-        
         if (confirm('Are you sure you want to clear your chat history? This cannot be undone.')) {
-            fetch('http://localhost:3001/api/chatbot/history', {
+            fetch(`http://localhost:3001/api/chatbot/${type}/history`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to clear chat history');
-                }
+                if (!response.ok) throw new Error('Failed to clear chat history');
                 return response.json();
             })
             .then(() => {
-                // Clear chat display
-                chatbotMessages.innerHTML = '';
-                
-                // Add welcome message
-                addMessage('Hello! I\'m your music assistant. Ask me about song recommendations, creating playlists, or how to use any feature!', 'bot');
+                const elements = getChatbotElements(type);
+                elements.messages.innerHTML = '';
+                const welcomeMessage = type === 'music'
+                    ? 'Hello! I\'m your music assistant. Ask me about song recommendations, creating playlists, or how to use any feature!'
+                    : 'Hello! I\'m your general AI assistant. I can help you with various tasks and engage in meaningful conversations!';
+                addMessage(welcomeMessage, 'bot', type);
             })
             .catch(error => {
-                console.error('Failed to clear chat history:', error);
                 alert('Failed to clear chat history. Please try again.');
             });
         }
     }
+
+    function disableChatbot(type) {
+        const elements = getChatbotElements(type);
+        elements.input.disabled = true;
+        elements.send.disabled = true;
+    }
+
+    function getChatbotElements(type) {
+        return type === 'music' ? {
+            messages: musicChatbotMessages,
+            input: musicChatbotInput,
+            send: musicChatbotSend
+        } : {
+            messages: generalChatbotMessages,
+            input: generalChatbotInput,
+            send: generalChatbotSend
+        };
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    // Get display name from user data
-    let displayName = user.name;
-    
-    // If name is not available, try to get it from email
-    if (!displayName && user.email) {
-        displayName = user.email.split('@')[0];
-        // Capitalize first letter
-        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-    }
-    
-    // If still no display name, use username
-    if (!displayName && user.username) {
-        displayName = user.username;
-    }
-    
-    // If still no display name, use a default
-    if (!displayName) {
-        displayName = 'User';
-    }
-    
-    // Update profile information
-    document.getElementById('profile-name').textContent = displayName;
-    if (user.username) {
-        document.getElementById('profile-username').textContent = `@${user.username}`;
-    }
-    if (user.email) {
-        document.getElementById('profile-email').textContent = user.email;
-    }
-    
-    // Update profile image if available
-    const profileImage = document.querySelector('.profile-image img');
-    if (user.profileImage && profileImage) {
-        profileImage.src = user.profileImage;
-    }
-
-    // Check if we're on the userprofile page or any page with chatbot elements
-    if (document.getElementById('chatbot-messages')) {
+    // Only initialize if the new elements exist
+    if (document.getElementById('musicChatbotMessages') && document.getElementById('generalChatbotMessages')) {
         initChatbot();
     }
+    // Floating button and popup logic
+    const openMusicChatbotBtn = document.getElementById('openMusicChatbot');
+    const openGeneralChatbotBtn = document.getElementById('openGeneralChatbot');
+    const musicChatbotPopup = document.getElementById('musicChatbotPopup');
+    const generalChatbotPopup = document.getElementById('generalChatbotPopup');
+    const closeMusicChatbotBtn = document.getElementById('closeMusicChatbot');
+    const closeGeneralChatbotBtn = document.getElementById('closeGeneralChatbot');
+
+    function closeAllPopups() {
+        if (musicChatbotPopup) musicChatbotPopup.classList.remove('active');
+        if (generalChatbotPopup) generalChatbotPopup.classList.remove('active');
+    }
+
+    if (openMusicChatbotBtn) {
+        openMusicChatbotBtn.addEventListener('click', () => {
+            closeAllPopups();
+            if (musicChatbotPopup) musicChatbotPopup.classList.add('active');
+        });
+    }
+    if (openGeneralChatbotBtn) {
+        openGeneralChatbotBtn.addEventListener('click', () => {
+            closeAllPopups();
+            if (generalChatbotPopup) generalChatbotPopup.classList.add('active');
+        });
+    }
+    if (closeMusicChatbotBtn) closeMusicChatbotBtn.addEventListener('click', closeAllPopups);
+    if (closeGeneralChatbotBtn) closeGeneralChatbotBtn.addEventListener('click', closeAllPopups);
 });

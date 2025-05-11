@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile - Spotify Clone</title>
     <link rel="stylesheet" href="CSS/styles.css">
+    <link rel="stylesheet" href="CSS/chatbot.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
@@ -128,31 +129,47 @@
                 </div>
             </div>
 
-            <!-- Chatbot Section -->
-            <div class="chatbot-section">
-                <h2 class="section-title">Music Assistant</h2>
-                <div class="chatbot-container">
-                    <div class="chatbot-header">
-                        <h3>Music Assistant</h3>
-                        <div class="chatbot-actions">
-                            <button id="export-chat" title="Export Chat History"><i class="fas fa-download"></i></button>
-                            <button id="clear-chat" title="Clear Chat History"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div id="chatbot-messages" class="chatbot-messages">
-                        <div class="chatbot-message bot">
-                            <div class="message-avatar">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="message-content">
-                                <p>Hello! I'm your music assistant. Ask me about song recommendations, creating playlists, or how to use any feature!</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chatbot-input-container">
-                        <input type="text" id="chatbot-input" placeholder="Ask about music, artists, or playlists...">
-                        <button id="chatbot-send"><i class="fas fa-paper-plane"></i></button>
-                    </div>
+            <!-- Floating Chatbot Buttons -->
+            <div class="chatbot-fab-container">
+                <button class="chatbot-fab music-fab" id="openMusicChatbot" title="Music Assistant">
+                    <i class="fas fa-music"></i>
+                </button>
+                <button class="chatbot-fab general-fab" id="openGeneralChatbot" title="General Assistant">
+                    <i class="fas fa-comments"></i>
+                </button>
+            </div>
+
+            <!-- Music Chatbot Popup -->
+            <div class="chatbot-popup" id="musicChatbotPopup">
+                <div class="chatbot-header">
+                    <span><i class="fas fa-music"></i> Music Assistant</span>
+                    <button class="close-chatbot" id="closeMusicChatbot">&times;</button>
+                </div>
+                <div class="chatbot-messages" id="musicChatbotMessages"></div>
+                <div class="chatbot-input-container">
+                    <input type="text" class="chatbot-input" id="musicChatbotInput" placeholder="Ask about music, playlists, etc...">
+                    <button class="chatbot-send" id="musicChatbotSend"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="chatbot-actions">
+                    <button class="chatbot-action-btn" id="musicExportChatBtn"><i class="fas fa-download"></i> Export Chat</button>
+                    <button class="chatbot-action-btn" id="musicClearChatBtn"><i class="fas fa-trash"></i> Clear Chat</button>
+                </div>
+            </div>
+
+            <!-- General Chatbot Popup -->
+            <div class="chatbot-popup" id="generalChatbotPopup">
+                <div class="chatbot-header">
+                    <span><i class="fas fa-comments"></i> General Assistant</span>
+                    <button class="close-chatbot" id="closeGeneralChatbot">&times;</button>
+                </div>
+                <div class="chatbot-messages" id="generalChatbotMessages"></div>
+                <div class="chatbot-input-container">
+                    <input type="text" class="chatbot-input" id="generalChatbotInput" placeholder="Ask me anything...">
+                    <button class="chatbot-send" id="generalChatbotSend"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="chatbot-actions">
+                    <button class="chatbot-action-btn" id="generalExportChatBtn"><i class="fas fa-download"></i> Export Chat</button>
+                    <button class="chatbot-action-btn" id="generalClearChatBtn"><i class="fas fa-trash"></i> Clear Chat</button>
                 </div>
             </div>
             
