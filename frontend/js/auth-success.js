@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Redirect to home page after 3 seconds
         setTimeout(() => {
             window.location.href = 'index.html';
-        }, 3000);
+        }, 3001);
     } else {
         // If no token, redirect to login page
         window.location.href = 'login.html';

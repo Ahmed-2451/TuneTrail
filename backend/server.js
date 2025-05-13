@@ -18,7 +18,7 @@ const server = createServer(app);
 initializeSocketIO(server);
 
 app.use(cors({
-    origin: 'http://localhost:8080',
+    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:3001'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
@@ -256,9 +256,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Frontend available at http://localhost:8080`);
+    console.log(`Frontend available at http://localhost:${PORT}`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });

@@ -81,10 +81,18 @@ function initChatbot() {
         const elements = getChatbotElements(type);
         const message = elements.input.value.trim();
         if (!message) return;
-        elements.input.value = '';
+        
+        // Disable input and button while processing
+        elements.input.disabled = true;
+        elements.send.disabled = true;
+        
+        // Add user message to chat
         addMessage(message, 'user', type);
+        elements.input.value = '';
+        
+        // Create typing indicator
         const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'chatbot-message bot';
+        typingIndicator.className = 'chatbot-message bot typing';
         typingIndicator.innerHTML = `
             <div class="message-avatar">
                 <i class="fas fa-robot"></i>
@@ -97,6 +105,15 @@ function initChatbot() {
         `;
         elements.messages.appendChild(typingIndicator);
         elements.messages.scrollTop = elements.messages.scrollHeight;
+        
+        // Set a timeout to show fallback message if API takes too long
+        const timeoutId = setTimeout(() => {
+            if (typingIndicator.parentNode) {
+                // Only add this message if we're still waiting for a response
+                addMessage("This is taking longer than usual. Please wait while I'm processing your request...", 'system', type);
+            }
+        }, 5000);
+        
         fetch(`http://localhost:3001/api/chatbot/${type}/message`, {
             method: 'POST',
             headers: {
@@ -112,26 +129,45 @@ function initChatbot() {
             return response.json();
         })
         .then(data => {
+            // Clear timeout since we got a response
+            clearTimeout(timeoutId);
+            
             if (typingIndicator.parentNode) {
                 elements.messages.removeChild(typingIndicator);
             }
+            
             if (!data) throw new Error('Empty response from server');
-            if (data && data.message) {
+            
+            if (data.error === "API_KEY_ISSUE") {
+                addMessage("The AI service is currently unavailable. Please check your OpenRouter API key.", 'system', type);
+            } else if (data && data.message) {
                 addMessage(data.message, 'bot', type);
             } else {
                 addMessage('Sorry, I received an invalid response. Please try again.', 'bot', type);
             }
         })
         .catch(error => {
+            // Clear timeout since we got a response (even if it's an error)
+            clearTimeout(timeoutId);
+            
             if (typingIndicator.parentNode) {
                 elements.messages.removeChild(typingIndicator);
             }
+            
+            console.error('Chatbot error:', error);
+            
             if (error.message.includes('401') || error.message.includes('Authentication')) {
-                addMessage('Your session has expired. Please refresh the page and log in again.', 'bot', type);
+                addMessage('Your session has expired. Please refresh the page and log in again.', 'system', type);
                 disableChatbot(type);
             } else {
-                addMessage('Sorry, I encountered an error. Please try again later.', 'bot', type);
+                addMessage('Sorry, I encountered an error. Please try again later.', 'system', type);
             }
+        })
+        .finally(() => {
+            // Re-enable input and button
+            elements.input.disabled = false;
+            elements.send.disabled = false;
+            elements.input.focus();
         });
     }
 

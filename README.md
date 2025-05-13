@@ -63,6 +63,12 @@ JWT_SECRET=your_jwt_secret_key_here
 # OpenRouter API (for chatbot)
 OPENROUTER_API_KEY=your_openrouter_api_key
 MAX_HISTORY_LENGTH=20
+
+# Google Search API (for real-time web search)
+GOOGLE_SEARCH_API_KEY=your_google_api_key_here
+GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id_here
+
+# Google Auth
 GOOGLE_CLIENT_ID=your_client_id_here
 GOOGLE_CLIENT_SECRET=your_client_secret_here
 GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
@@ -84,6 +90,21 @@ The application includes two AI-powered chatbots:
 
 1. **Music Assistant**: Helps with music recommendations, playlist creation, and app features
 2. **General Assistant**: Answers general questions and provides conversation
+
+### Setting up Google Search API for Real-time Data
+
+To enable the chatbots to search the web for real-time information such as weather, news, and current events, you need to set up the Google Custom Search API:
+
+1. Create a Google Cloud Platform account at https://console.cloud.google.com/
+2. Create a new project
+3. Enable the "Custom Search API" in the API Library
+4. Create API credentials to get your API key
+5. Go to https://programmablesearchengine.google.com/ to create a Programmable Search Engine
+6. Configure your search engine (select "Search the entire web" option)
+7. Get your Search Engine ID
+8. Add both the API key and Search Engine ID to your `.env` file
+
+Without these credentials, the chatbot will still work but won't be able to provide real-time information.
 
 ## Project Structure
 
