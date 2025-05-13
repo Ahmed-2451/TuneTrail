@@ -126,8 +126,13 @@ router.get('/google/callback',
     // Generate JWT token
     const token = generateToken(req.user);
     
+    // Determine frontend URL based on environment
+    const frontendUrl = process.env.NODE_ENV === 'production'
+      ? ''  // Empty for same-origin in production
+      : 'http://localhost:3001';
+    
     // Redirect to frontend with token
-    res.redirect(`http://localhost:3001/auth-success.html?token=${token}`);
+    res.redirect(`${frontendUrl}/auth-success.html?token=${token}`);
   }
 );
 

@@ -19,6 +19,7 @@
                 }
                 
                 try {
+                    console.log('Attempting signup with:', { email, username });
                     const response = await apiRequest('/auth/signup', {
                         method: 'POST',
                         headers: {
@@ -27,8 +28,14 @@
                         body: JSON.stringify({ email, password, name, username })
                     });
                     
-                    if (!response) return;
+                    if (!response) {
+                        console.error('No response from server');
+                        alert('Server unavailable. Please try again later.');
+                        return;
+                    }
+                    
                     const data = await response.json();
+                    console.log('Signup response:', data);
                     
                     if (response.ok) {
                         localStorage.setItem('token', data.token);
@@ -40,7 +47,7 @@
                     }
                 } catch (error) {
                     console.error('Signup error:', error);
-                    alert('An error occurred during signup');
+                    alert('An error occurred during signup. Please try again.');
                 }
             });
             
