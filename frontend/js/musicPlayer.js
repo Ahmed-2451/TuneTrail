@@ -1,49 +1,37 @@
 class MusicPlayer {
     constructor() {
         console.log('MusicPlayer constructor called');
-        this.audio = new Audio();
+        
+        // Use the shared PlayerService instead of creating a new Audio instance
+        this.playerService = window.playerService;
+        this.audio = this.playerService.audio;
         this.tracks = [];
-        this.currentTrackIndex = parseInt(localStorage.getItem('currentTrackIndex')) || 0;
-        this.isPlaying = JSON.parse(localStorage.getItem('isPlaying')) || false;
-        this.volume = parseFloat(localStorage.getItem('volume')) || 1;
-        this.audio.volume = this.volume;
         
         this.initializeElements();
         this.addEventListeners();
         
-        // Load tracks and restore state
+        // Subscribe to player service events
+        this.playerService.subscribe('trackChanged', this.handleTrackChanged.bind(this));
+        this.playerService.subscribe('playbackStateChanged', this.handlePlaybackStateChanged.bind(this));
+        this.playerService.subscribe('volumeChanged', this.handleVolumeChanged.bind(this));
+        
+        // Load tracks and reflect current state in UI
         this.loadTracks().then(() => {
             console.log(`Loaded ${this.tracks.length} tracks`);
-            const savedTime = parseFloat(localStorage.getItem('currentTime')) || 0;
-            const savedTrack = localStorage.getItem('currentTrack');
             
+            // Update the UI based on current player state
             if (this.tracks.length > 0) {
-                // If we have a saved track and it exists in our tracks list
-                if (savedTrack) {
-                    const trackIndex = this.tracks.findIndex(t => t.filename === savedTrack);
-                    if (trackIndex !== -1) {
-                        this.currentTrackIndex = trackIndex;
-                    }
+                const currentIndex = this.playerService.currentTrackIndex;
+                if (currentIndex >= 0 && currentIndex < this.tracks.length) {
+                    const currentTrack = this.tracks[currentIndex];
+                    this.updateTrackInfo(currentTrack);
+                    this.updatePlayButton(this.playerService.isPlaying);
+                    this.updateActiveSong(currentIndex);
                 }
-                
-                this.loadTrack(this.currentTrackIndex, false);
-                this.audio.currentTime = savedTime;
-                
-                if (this.isPlaying) {
-                    this.audio.play().catch(error => {
-                        console.error('Error playing audio:', error);
-                        this.isPlaying = false;
-                    });
-                    this.updatePlayButton(true);
-                }
-            } else {
-                console.log('No tracks found or tracks array is empty');
             }
         }).catch(error => {
             console.error('Error in loadTracks promise:', error);
         });
-        
-        this.updateActiveSong(this.currentTrackIndex);
     }
 
     initializeElements() {
@@ -64,157 +52,54 @@ class MusicPlayer {
 
     addEventListeners() {
         // Player controls
-        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
-        this.nextBtn.addEventListener('click', () => this.playNext());
-        this.prevBtn.addEventListener('click', () => this.playPrevious());
+        if (this.playPauseBtn) {
+            this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+        }
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => this.playNext());
+        }
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => this.playPrevious());
+        }
         
         // Volume controls
-        this.volumeSlider.addEventListener('click', (e) => this.handleVolumeChange(e));
-        this.volumeBtn.addEventListener('click', () => this.toggleMute());
+        if (this.volumeSlider) {
+            this.volumeSlider.addEventListener('click', (e) => this.handleVolumeChange(e));
+        }
+        if (this.volumeBtn) {
+            this.volumeBtn.addEventListener('click', () => this.toggleMute());
+        }
         
         // Progress bar
-        this.progressBar.addEventListener('click', (e) => this.handleProgressBarClick(e));
+        if (this.progressBar) {
+            this.progressBar.addEventListener('click', (e) => this.handleProgressBarClick(e));
+        }
         
         // Audio events
         this.audio.addEventListener('timeupdate', () => {
             this.updateProgress();
-            localStorage.setItem('currentTime', this.audio.currentTime);
         });
-        
-        this.audio.addEventListener('ended', () => this.playNext());
-
-        // Save state before page unload
-        window.addEventListener('beforeunload', () => this.saveState());
     }
 
     async loadTracks() {
-        try {
-            console.log('Fetching tracks from API...');
-            const apiUrl = `${config.API_URL}/tracks`;
-            console.log('API URL:', apiUrl);
-            
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                throw new Error(`API returned status ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            console.log(`Received ${data.length} tracks from API`);
-            
-            // Ensure duration values are numbers
-            this.tracks = data.map(track => {
-                // If duration exists but is a string, convert to number
-                if (track.duration && typeof track.duration === 'string') {
-                    track.duration = parseFloat(track.duration);
-                }
-                
-                // If duration is invalid or doesn't exist, use file metadata when available
-                if (!track.duration || isNaN(track.duration) || track.duration <= 0) {
-                    // Will be set when audio loads
-                    track.duration = 0;
-                }
-                
-                return track;
-            });
-            
-            // Only use this data if we have tracks
-            if (this.tracks && this.tracks.length > 0) {
-                return this.tracks;
-            } else {
-                throw new Error('No tracks returned from API');
-            }
-        } catch (error) {
-            console.error('Error loading tracks:', error);
-            // Fallback to only one sample track if API is not available - this is safer
-            this.tracks = [
-                {
-                    id: '1',
-                    title: 'K.',
-                    artist: 'Cigarettes After Sex',
-                    album: 'K.',
-                    cover_url: 'images/image.jpg',
-                    filename: 'K. - Cigarettes After Sex.mp3', // Match filenames with what's in the database
-                    duration: 210
-                }
-            ];
-            console.log('Using fallback track:', this.tracks);
-            return this.tracks;
-        }
+        // Use PlayerService to load tracks
+        this.tracks = await this.playerService.loadTracks();
+        return this.tracks;
     }
 
     async loadTrack(index, shouldPlay = false) {
-        if (index >= 0 && index < this.tracks.length) {
-            const track = this.tracks[index];
-            // Fix track URL for production
-            const isLocalhost = window.location.hostname === 'localhost';
-            const trackUrl = isLocalhost
-                ? `http://localhost:3001/tracks/${encodeURIComponent(track.filename)}`
-                : `/tracks/${encodeURIComponent(track.filename)}`;
-            
-            console.log(`Loading track: ${track.title}, URL: ${trackUrl}`);
-            this.audio.src = trackUrl;
-            
-            // Update track info
-            this.songTitle.textContent = track.title;
-            this.songArtist.textContent = track.artist;
-            this.songImage.src = track.cover_url;
-            this.currentTrackIndex = index;
-            this.progress.style.width = '0%';
-            this.currentTimeSpan.textContent = '0:00';
-
-            // Update active song highlighting
-            this.updateActiveSong(index);
-            
-            // Set up metadata loading
-            this.audio.addEventListener('loadedmetadata', () => {
-                // Update track duration if it was 0 or invalid
-                if (!track.duration || track.duration <= 0) {
-                    track.duration = this.audio.duration;
-                    console.log(`Updated duration for track ${track.title} to ${track.duration}`);
-                    
-                    // Update duration display in track list if present
-                    const trackRows = document.querySelectorAll('#tracks-container tr');
-                    if (trackRows[index]) {
-                        const durationCell = trackRows[index].querySelector('.track-duration');
-                        if (durationCell) {
-                            durationCell.textContent = this.formatTime(track.duration);
-                        }
-                    }
-                }
-                
-                this.totalTimeSpan.textContent = this.formatTime(this.audio.duration);
-            }, { once: true });  // only run once per track load
-
-            if (shouldPlay) {
-                try {
-                    await this.audio.play();
-                    this.isPlaying = true;
-                    this.updatePlayButton(true);
-                } catch (error) {
-                    console.error('Error playing audio:', error);
-                    this.isPlaying = false;
-                    this.updatePlayButton(false);
-                }
-            }
-        }
+        // Use PlayerService to load track
+        await this.playerService.loadTrack(index, shouldPlay);
     }
 
     updateTrackInfo(track) {
-        if (this.songTitle) this.songTitle.textContent = track.title;
-        if (this.songArtist) this.songArtist.textContent = track.artist;
-        if (this.songImage) this.songImage.src = track.cover_url;
+        if (this.songTitle) this.songTitle.textContent = track.title || '';
+        if (this.songArtist) this.songArtist.textContent = track.artist || '';
+        if (this.songImage) this.songImage.src = track.cover_url || '';
     }
 
     async togglePlayPause() {
-        if (this.audio.paused) {
-            await this.audio.play();
-            this.isPlaying = true;
-        } else {
-            this.audio.pause();
-            this.isPlaying = false;
-        }
-        this.updatePlayButton(this.isPlaying);
-        localStorage.setItem('isPlaying', this.isPlaying);
+        await this.playerService.togglePlayPause();
     }
 
     updatePlayButton(isPlaying) {
@@ -226,19 +111,11 @@ class MusicPlayer {
     }
 
     async playNext() {
-        const nextIndex = (this.currentTrackIndex + 1) % this.tracks.length;
-        await this.loadTrack(nextIndex);
-        if (this.isPlaying) {
-            await this.audio.play();
-        }
+        await this.playerService.playNext();
     }
 
     async playPrevious() {
-        const prevIndex = (this.currentTrackIndex - 1 + this.tracks.length) % this.tracks.length;
-        await this.loadTrack(prevIndex);
-        if (this.isPlaying) {
-            await this.audio.play();
-        }
+        await this.playerService.playPrevious();
     }
 
     handleVolumeChange(e) {
@@ -248,29 +125,33 @@ class MusicPlayer {
     }
 
     setVolume(volume) {
-        this.audio.volume = Math.max(0, Math.min(1, volume));
+        this.playerService.setVolume(volume);
+        this.updateVolumeDisplay(volume);
+    }
+
+    updateVolumeDisplay(volume) {
         if (this.volumeProgress) {
-            this.volumeProgress.style.width = `${this.audio.volume * 100}%`;
+            this.volumeProgress.style.width = `${volume * 100}%`;
         }
-        this.updateVolumeIcon();
-        localStorage.setItem('volume', this.audio.volume);
+        this.updateVolumeIcon(volume);
     }
 
     toggleMute() {
-        if (this.audio.volume > 0) {
-            this.previousVolume = this.audio.volume;
+        const currentVolume = this.audio.volume;
+        if (currentVolume > 0) {
+            this.previousVolume = currentVolume;
             this.setVolume(0);
         } else {
             this.setVolume(this.previousVolume || 1);
         }
     }
 
-    updateVolumeIcon() {
+    updateVolumeIcon(volume) {
         if (!this.volumeBtn) return;
         
-        if (this.audio.volume === 0) {
+        if (volume === 0) {
             this.volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-        } else if (this.audio.volume < 0.5) {
+        } else if (volume < 0.5) {
             this.volumeBtn.innerHTML = '<i class="fas fa-volume-down"></i>';
         } else {
             this.volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
@@ -292,6 +173,9 @@ class MusicPlayer {
         }
         if (this.currentTimeSpan) {
             this.currentTimeSpan.textContent = this.formatTime(this.audio.currentTime);
+        }
+        if (this.totalTimeSpan && this.audio.duration) {
+            this.totalTimeSpan.textContent = this.formatTime(this.audio.duration);
         }
     }
 
@@ -318,18 +202,17 @@ class MusicPlayer {
         }
     }
 
-    // Add this method to handle track changes
-    handleTrackChange(index) {
-        this.updateActiveSong(index);
+    // Event handlers for PlayerService events
+    handleTrackChanged(data) {
+        this.updateTrackInfo(data.track);
+        this.updateActiveSong(data.index);
     }
 
-    saveState() {
-        localStorage.setItem('currentTrackIndex', this.currentTrackIndex);
-        localStorage.setItem('isPlaying', this.isPlaying);
-        localStorage.setItem('volume', this.audio.volume);
-        localStorage.setItem('currentTime', this.audio.currentTime);
-        if (this.tracks[this.currentTrackIndex]) {
-            localStorage.setItem('currentTrack', this.tracks[this.currentTrackIndex].filename);
-        }
+    handlePlaybackStateChanged(data) {
+        this.updatePlayButton(data.isPlaying);
+    }
+
+    handleVolumeChanged(data) {
+        this.updateVolumeDisplay(data.volume);
     }
 } 
