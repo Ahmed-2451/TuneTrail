@@ -66,6 +66,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Handle Google login
     googleLoginBtn.addEventListener('click', () => {
+        console.log('Google login clicked, redirecting to:', `${config.API_URL}/auth/google`);
+        
+        // Store the current timestamp to detect login failures
+        localStorage.setItem('googleAuthStarted', Date.now().toString());
+        
+        // Add loading state to button
+        googleLoginBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Connecting to Google...';
+        googleLoginBtn.disabled = true;
+        
+        // Start redirect to Google OAuth
         window.location.href = `${config.API_URL}/auth/google`;
     });
+    
+    // Check for failed Google authentication on page load
+    const googleAuthStarted = localStorage.getItem('googleAuthStarted');
+    if (googleAuthStarted) {
+        const startTime = parseInt(googleAuthStarted);
+        const currentTime = Date.now();
+        
+        // If more than 5 seconds have passed since auth started and we're back at login page,
+        // it likely failed
+        if (currentTime - startTime > 5000) {
+            // Show a failed auth message
+            console.warn('Detected possible failed Google auth attempt');
+            localStorage.removeItem('googleAuthStarted');
+        }
+    }
 });

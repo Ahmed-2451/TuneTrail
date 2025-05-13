@@ -32,21 +32,34 @@ passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
 
 // Set production Google callback URL if in production mode and not explicitly configured
 if (process.env.NODE_ENV === 'production' && !process.env.GOOGLE_CALLBACK_URL) {
-  process.env.GOOGLE_CALLBACK_URL = 'https://spotify-clone.onrender.com/api/auth/google/callback';
+  process.env.GOOGLE_CALLBACK_URL = 'https://spotify-clone.onrender.com/auth/google/callback';
   console.log(`Production detected, setting GOOGLE_CALLBACK_URL to: ${process.env.GOOGLE_CALLBACK_URL}`);
 }
 
 // Google OAuth Strategy - only set up if environment variables are configured
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CALLBACK_URL) {
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  // If GOOGLE_CALLBACK_URL isn't set, default to a relative URL that will work in any environment
+  if (!process.env.GOOGLE_CALLBACK_URL) {
+    process.env.GOOGLE_CALLBACK_URL = '/api/auth/google/callback';
+    console.log(`Setting default GOOGLE_CALLBACK_URL to: ${process.env.GOOGLE_CALLBACK_URL}`);
+  }
+  
   console.log(`Using Google callback URL: ${process.env.GOOGLE_CALLBACK_URL}`);
   
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    prompt: 'select_account'  // Force account selection
-  }, async (accessToken, refreshToken, profile, done) => {
+    prompt: 'select_account',  // Force account selection
+    passReqToCallback: true // This allows us to get the request object
+  }, async (req, accessToken, refreshToken, profile, done) => {
     try {
+      console.log('Google auth callback received:', {
+        profileId: profile.id,
+        displayName: profile.displayName,
+        email: profile.emails?.[0]?.value || 'No email found'
+      });
+      
       // Check if user already exists
       let user = await Users.findOne({ where: { email: profile.emails[0].value } });
       
@@ -67,6 +80,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.
       
       return done(null, user);
     } catch (error) {
+      console.error('Google auth error:', error);
       return done(error, false);
     }
   }));

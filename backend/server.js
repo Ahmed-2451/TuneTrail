@@ -44,6 +44,23 @@ app.get('/auth/google/callback', (req, res) => {
     res.redirect(`/api/auth/google/callback${queryString}`);
 });
 
+// Handle additional Google OAuth callback patterns
+app.get('/google/callback', (req, res) => {
+    console.log('Redirecting from /google/callback to /api/auth/google/callback');
+    const queryString = Object.keys(req.query).length > 0 
+        ? '?' + new URLSearchParams(req.query).toString() 
+        : '';
+    res.redirect(`/api/auth/google/callback${queryString}`);
+});
+
+app.get('/callback', (req, res) => {
+    console.log('Redirecting from /callback to /api/auth/google/callback');
+    const queryString = Object.keys(req.query).length > 0 
+        ? '?' + new URLSearchParams(req.query).toString() 
+        : '';
+    res.redirect(`/api/auth/google/callback${queryString}`);
+});
+
 // Auth routes
 app.use('/api/auth', authRoutes);
 
