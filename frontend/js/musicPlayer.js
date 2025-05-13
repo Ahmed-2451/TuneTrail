@@ -117,10 +117,15 @@ class MusicPlayer {
                 return track;
             });
             
-            return this.tracks;
+            // Only use this data if we have tracks
+            if (this.tracks && this.tracks.length > 0) {
+                return this.tracks;
+            } else {
+                throw new Error('No tracks returned from API');
+            }
         } catch (error) {
             console.error('Error loading tracks:', error);
-            // Fallback to some sample tracks if API is not available
+            // Fallback to only one sample track if API is not available - this is safer
             this.tracks = [
                 {
                     id: '1',
@@ -128,20 +133,11 @@ class MusicPlayer {
                     artist: 'Cigarettes After Sex',
                     album: 'K.',
                     cover_url: 'images/image.jpg',
-                    filename: 'song1.mp3',
+                    filename: 'K. - Cigarettes After Sex.mp3', // Match filenames with what's in the database
                     duration: 210
-                },
-                {
-                    id: '2',
-                    title: 'Nothing\'s Gonna Hurt You Baby',
-                    artist: 'Cigarettes After Sex',
-                    album: 'I.',
-                    cover_url: 'images/image.jpg',
-                    filename: 'song2.mp3',
-                    duration: 195
                 }
             ];
-            console.log('Using fallback tracks:', this.tracks);
+            console.log('Using fallback track:', this.tracks);
             return this.tracks;
         }
     }
@@ -149,11 +145,13 @@ class MusicPlayer {
     async loadTrack(index, shouldPlay = false) {
         if (index >= 0 && index < this.tracks.length) {
             const track = this.tracks[index];
-            // Use relative URL that works in both dev and prod
-            const trackUrl = window.location.hostname === 'localhost'
+            // Fix track URL for production
+            const isLocalhost = window.location.hostname === 'localhost';
+            const trackUrl = isLocalhost
                 ? `http://localhost:3001/tracks/${encodeURIComponent(track.filename)}`
                 : `/tracks/${encodeURIComponent(track.filename)}`;
             
+            console.log(`Loading track: ${track.title}, URL: ${trackUrl}`);
             this.audio.src = trackUrl;
             
             // Update track info
@@ -188,9 +186,15 @@ class MusicPlayer {
             }, { once: true });  // only run once per track load
 
             if (shouldPlay) {
-                await this.audio.play();
-                this.isPlaying = true;
-                this.updatePlayButton(true);
+                try {
+                    await this.audio.play();
+                    this.isPlaying = true;
+                    this.updatePlayButton(true);
+                } catch (error) {
+                    console.error('Error playing audio:', error);
+                    this.isPlaying = false;
+                    this.updatePlayButton(false);
+                }
             }
         }
     }
