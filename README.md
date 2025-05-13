@@ -117,7 +117,7 @@ When deploying to a platform like Render, you need to configure Google OAuth cor
    - Navigate to your project
    - Go to "APIs & Services" > "Credentials"
    - Find and edit your OAuth 2.0 Client ID
-   - Add your production redirect URL: `https://Spotify-Clone.onrender.com/api/auth/google/callback`
+   - Add your production redirect URL: `https://spotify-clone.onrender.com/api/auth/google/callback`
    
 2. **Configure environment variables in Render**:
    - In your Render dashboard, navigate to your web service
@@ -126,7 +126,7 @@ When deploying to a platform like Render, you need to configure Google OAuth cor
      - `NODE_ENV`: `production`
      - `GOOGLE_CLIENT_ID`: Your Google Client ID
      - `GOOGLE_CLIENT_SECRET`: Your Google Client Secret
-     - `GOOGLE_CALLBACK_URL`: `https://Spotify-Clone.onrender.com/api/auth/google/callback`
+     - `GOOGLE_CALLBACK_URL`: `https://spotify-clone.onrender.com/api/auth/google/callback`
 
 3. **Update start command in Render**:
    - Set the start command to: `npm run start:production`

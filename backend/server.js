@@ -29,6 +29,12 @@ app.use(express.json());
 // Initialize Passport
 app.use(passport.initialize());
 
+// Log all incoming requests in production for debugging
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+
 // Auth routes
 app.use('/api/auth', authRoutes);
 

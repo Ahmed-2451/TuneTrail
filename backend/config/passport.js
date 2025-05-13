@@ -32,7 +32,7 @@ passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
 
 // Set production Google callback URL if in production mode and not explicitly configured
 if (process.env.NODE_ENV === 'production' && !process.env.GOOGLE_CALLBACK_URL) {
-  process.env.GOOGLE_CALLBACK_URL = 'https://Spotify-Clone.onrender.com/api/auth/google/callback';
+  process.env.GOOGLE_CALLBACK_URL = 'https://spotify-clone.onrender.com/api/auth/google/callback';
   console.log(`Production detected, setting GOOGLE_CALLBACK_URL to: ${process.env.GOOGLE_CALLBACK_URL}`);
 }
 
