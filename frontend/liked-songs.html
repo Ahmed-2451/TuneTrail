@@ -145,10 +145,25 @@
         </div>
     </div>
 
+    <!-- Load the scripts in the correct order -->
     <script src="js/config.js"></script>
     <script src="js/common.js"></script>
     <script src="js/playerService.js"></script>
+    <script>
+        // Ensure playerService is initialized before any other scripts
+        if (!window.playerService && typeof PlayerService !== 'undefined') {
+            window.playerService = new PlayerService();
+        }
+    </script>
     <script src="js/musicPlayer.js"></script>
+    <script>
+        // Ensure music player is initialized
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.player && typeof MusicPlayer !== 'undefined') {
+                window.player = new MusicPlayer();
+            }
+        });
+    </script>
     <script src="js/liked-songs.js"></script>
 </body>
 </html> 

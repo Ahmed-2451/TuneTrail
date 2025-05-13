@@ -2,10 +2,23 @@ class MusicPlayer {
     constructor() {
         console.log('MusicPlayer constructor called');
         
+        // Check if we're already initialized by checking DOM state
+        if (document.querySelector('.player.initialized')) {
+            console.log('Player UI already initialized, skipping redundant setup');
+            this.addEventListenersOnly();
+            return;
+        }
+        
         // Use the shared PlayerService instead of creating a new Audio instance
         this.playerService = window.playerService;
         this.audio = this.playerService.audio;
         this.tracks = [];
+        
+        // Mark the player as initialized
+        const playerElement = document.querySelector('.player');
+        if (playerElement) {
+            playerElement.classList.add('initialized');
+        }
         
         this.initializeElements();
         this.addEventListeners();
@@ -33,6 +46,25 @@ class MusicPlayer {
             console.error('Error in loadTracks promise:', error);
         });
     }
+    
+    // Only add event listeners if we're already initialized
+    addEventListenersOnly() {
+        this.playerService = window.playerService;
+        this.audio = this.playerService.audio;
+        this.initializeElements();
+        this.addEventListeners();
+        
+        // Subscribe to player service events
+        this.playerService.subscribe('trackChanged', this.handleTrackChanged.bind(this));
+        this.playerService.subscribe('playbackStateChanged', this.handlePlaybackStateChanged.bind(this));
+        this.playerService.subscribe('volumeChanged', this.handleVolumeChanged.bind(this));
+        
+        // Update UI with current state
+        if (this.playerService.currentTrack) {
+            this.updateTrackInfo(this.playerService.currentTrack);
+            this.updatePlayButton(this.playerService.isPlaying);
+        }
+    }
 
     initializeElements() {
         this.playPauseBtn = document.querySelector('.play-pause');
@@ -48,37 +80,82 @@ class MusicPlayer {
         this.songTitle = document.querySelector('.song-details h4');
         this.songArtist = document.querySelector('.song-details p');
         this.songImage = document.querySelector('.current-song-image');
+        
+        // If we already have volume info, update the UI
+        if (this.playerService && this.volumeProgress) {
+            this.updateVolumeDisplay(this.playerService.audio.volume);
+        }
     }
 
     addEventListeners() {
         // Player controls
         if (this.playPauseBtn) {
+            // Remove any existing listeners to prevent duplicates
+            const newBtn = this.playPauseBtn.cloneNode(true);
+            if (this.playPauseBtn.parentNode) {
+                this.playPauseBtn.parentNode.replaceChild(newBtn, this.playPauseBtn);
+            }
+            this.playPauseBtn = newBtn;
             this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         }
+        
         if (this.nextBtn) {
+            const newBtn = this.nextBtn.cloneNode(true);
+            if (this.nextBtn.parentNode) {
+                this.nextBtn.parentNode.replaceChild(newBtn, this.nextBtn);
+            }
+            this.nextBtn = newBtn;
             this.nextBtn.addEventListener('click', () => this.playNext());
         }
+        
         if (this.prevBtn) {
+            const newBtn = this.prevBtn.cloneNode(true);
+            if (this.prevBtn.parentNode) {
+                this.prevBtn.parentNode.replaceChild(newBtn, this.prevBtn);
+            }
+            this.prevBtn = newBtn;
             this.prevBtn.addEventListener('click', () => this.playPrevious());
         }
         
         // Volume controls
         if (this.volumeSlider) {
+            const newSlider = this.volumeSlider.cloneNode(true);
+            if (this.volumeSlider.parentNode) {
+                this.volumeSlider.parentNode.replaceChild(newSlider, this.volumeSlider);
+            }
+            this.volumeSlider = newSlider;
+            this.volumeProgress = this.volumeSlider.querySelector('.volume-progress');
             this.volumeSlider.addEventListener('click', (e) => this.handleVolumeChange(e));
         }
+        
         if (this.volumeBtn) {
+            const newBtn = this.volumeBtn.cloneNode(true);
+            if (this.volumeBtn.parentNode) {
+                this.volumeBtn.parentNode.replaceChild(newBtn, this.volumeBtn);
+            }
+            this.volumeBtn = newBtn;
             this.volumeBtn.addEventListener('click', () => this.toggleMute());
         }
         
         // Progress bar
         if (this.progressBar) {
+            const newBar = this.progressBar.cloneNode(true);
+            if (this.progressBar.parentNode) {
+                this.progressBar.parentNode.replaceChild(newBar, this.progressBar);
+            }
+            this.progressBar = newBar;
+            this.progress = this.progressBar.querySelector('.progress');
             this.progressBar.addEventListener('click', (e) => this.handleProgressBarClick(e));
         }
         
-        // Audio events
-        this.audio.addEventListener('timeupdate', () => {
-            this.updateProgress();
-        });
+        // Audio events - use one-time binding to avoid duplicate events
+        if (this.audio) {
+            // Clean up existing listeners first
+            const timeUpdateHandler = () => this.updateProgress();
+            this.audio._timeUpdateHandler = timeUpdateHandler;  // Store reference for future cleanup
+            
+            this.audio.addEventListener('timeupdate', timeUpdateHandler);
+        }
     }
 
     async loadTracks() {
@@ -93,9 +170,11 @@ class MusicPlayer {
     }
 
     updateTrackInfo(track) {
+        if (!track) return;
+        
         if (this.songTitle) this.songTitle.textContent = track.title || '';
         if (this.songArtist) this.songArtist.textContent = track.artist || '';
-        if (this.songImage) this.songImage.src = track.cover_url || '';
+        if (this.songImage && track.cover_url) this.songImage.src = track.cover_url;
     }
 
     async togglePlayPause() {
@@ -103,11 +182,11 @@ class MusicPlayer {
     }
 
     updatePlayButton(isPlaying) {
-        if (this.playPauseBtn) {
-            this.playPauseBtn.innerHTML = isPlaying ? 
-                '<i class="fas fa-pause"></i>' : 
-                '<i class="fas fa-play"></i>';
-        }
+        if (!this.playPauseBtn) return;
+        
+        this.playPauseBtn.innerHTML = isPlaying ? 
+            '<i class="fas fa-pause"></i>' : 
+            '<i class="fas fa-play"></i>';
     }
 
     async playNext() {
@@ -119,6 +198,8 @@ class MusicPlayer {
     }
 
     handleVolumeChange(e) {
+        if (!this.volumeSlider) return;
+        
         const rect = this.volumeSlider.getBoundingClientRect();
         const position = (e.clientX - rect.left) / rect.width;
         this.setVolume(position);
@@ -130,13 +211,15 @@ class MusicPlayer {
     }
 
     updateVolumeDisplay(volume) {
-        if (this.volumeProgress) {
-            this.volumeProgress.style.width = `${volume * 100}%`;
-        }
+        if (!this.volumeProgress) return;
+        
+        this.volumeProgress.style.width = `${volume * 100}%`;
         this.updateVolumeIcon(volume);
     }
 
     toggleMute() {
+        if (!this.audio) return;
+        
         const currentVolume = this.audio.volume;
         if (currentVolume > 0) {
             this.previousVolume = currentVolume;
@@ -159,13 +242,15 @@ class MusicPlayer {
     }
 
     handleProgressBarClick(e) {
+        if (!this.progressBar || !this.audio || !this.audio.duration) return;
+        
         const rect = this.progressBar.getBoundingClientRect();
         const position = (e.clientX - rect.left) / rect.width;
         this.audio.currentTime = position * this.audio.duration;
     }
 
     updateProgress() {
-        if (!this.audio.duration) return;
+        if (!this.audio || !this.audio.duration) return;
         
         const progress = (this.audio.currentTime / this.audio.duration) * 100;
         if (this.progress) {

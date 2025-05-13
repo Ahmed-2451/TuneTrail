@@ -4,10 +4,20 @@
  */
 class PlayerService {
     constructor() {
-        // If an instance already exists in SessionStorage
-        if (window.playerServiceInstance) {
+        console.log('PlayerService constructor called');
+        
+        // Check if we have an existing audio session ID in sessionStorage
+        const sessionId = sessionStorage.getItem('audioSessionId');
+        
+        if (sessionId && window.playerServiceInstance) {
             console.log('Returning existing PlayerService instance');
             return window.playerServiceInstance;
+        }
+        
+        // Create a new session ID if one doesn't exist
+        if (!sessionId) {
+            sessionStorage.setItem('audioSessionId', Date.now().toString());
+            console.log('Created new audio session ID');
         }
         
         console.log('Creating new PlayerService instance');
@@ -17,7 +27,15 @@ class PlayerService {
         this.isPlaying = false;
         this.currentTrack = null;
         this.tracks = [];
-        this.currentTrackIndex = 0;
+        this.currentTrackIndex = parseInt(localStorage.getItem('currentTrackIndex')) || 0;
+        this.currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
+        
+        // Save state more frequently to ensure it's preserved
+        setInterval(() => {
+            if (this.audio && this.audio.currentTime > 0) {
+                localStorage.setItem('currentTime', this.audio.currentTime.toString());
+            }
+        }, 1000);
         
         // Load saved state from localStorage
         this.loadStateFromStorage();
@@ -25,11 +43,60 @@ class PlayerService {
         // Set up event listeners
         this.audio.addEventListener('ended', this.handleTrackEnd.bind(this));
         
-        // Add visibility change listener to handle tab switching
+        // Add visibility change and page unload listener
         document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+        window.addEventListener('beforeunload', () => this.saveState());
+        
+        // Listen for storage events from other tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'isPlaying' || e.key === 'currentTrackIndex' || e.key === 'currentTime') {
+                this.syncStateFromStorage();
+            }
+        });
         
         // Save reference globally
         window.playerServiceInstance = this;
+        
+        // Initialize with the current track if available
+        this.initializeWithSavedTrack();
+    }
+    
+    /**
+     * Initialize with the saved track
+     */
+    async initializeWithSavedTrack() {
+        try {
+            // Load tracks first
+            await this.loadTracks();
+            
+            // Get saved state
+            const savedTrack = localStorage.getItem('currentTrack');
+            const isPlaying = localStorage.getItem('isPlaying') === 'true';
+            const savedTime = parseFloat(localStorage.getItem('currentTime')) || 0;
+            
+            if (savedTrack && this.tracks.length > 0) {
+                // Find the track index
+                const trackIndex = this.tracks.findIndex(t => t.filename === savedTrack);
+                if (trackIndex !== -1) {
+                    this.currentTrackIndex = trackIndex;
+                    
+                    // Load the track without autoplay
+                    await this.loadTrack(trackIndex, false);
+                    
+                    // Set the current time
+                    if (savedTime > 0 && this.audio) {
+                        this.audio.currentTime = savedTime;
+                    }
+                    
+                    // Play if it was playing before
+                    if (isPlaying) {
+                        this.play().catch(err => console.error('Error auto-playing track:', err));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error initializing with saved track:', error);
+        }
     }
     
     /**
@@ -41,6 +108,39 @@ class PlayerService {
         this.audio.volume = this.volume;
         
         // We'll actually load the tracks later when needed
+    }
+    
+    /**
+     * Sync state from localStorage (for cross-tab coordination)
+     */
+    syncStateFromStorage() {
+        const isPlaying = localStorage.getItem('isPlaying') === 'true';
+        const currentTrackIndex = parseInt(localStorage.getItem('currentTrackIndex')) || 0;
+        const currentTime = parseFloat(localStorage.getItem('currentTime')) || 0;
+        
+        // Only update if there's a change
+        if (this.currentTrackIndex !== currentTrackIndex) {
+            this.loadTrack(currentTrackIndex, false).then(() => {
+                this.audio.currentTime = currentTime;
+                if (isPlaying && this.audio.paused) {
+                    this.play();
+                } else if (!isPlaying && !this.audio.paused) {
+                    this.pause();
+                }
+            });
+        } else if (Math.abs(this.audio.currentTime - currentTime) > 3) {
+            // Only update time if it's significantly different (>3 seconds)
+            this.audio.currentTime = currentTime;
+        }
+        
+        // Update play state if different
+        if (isPlaying !== this.isPlaying) {
+            if (isPlaying) {
+                this.play();
+            } else {
+                this.pause();
+            }
+        }
     }
     
     /**
@@ -97,7 +197,7 @@ class PlayerService {
             console.log(`PlayerService: Loading track ${track.title} at ${trackUrl}`);
             
             // Check if we're already playing this track
-            if (this.audio.src === trackUrl) {
+            if (this.audio.src.endsWith(encodeURIComponent(track.filename))) {
                 if (autoplay && !this.isPlaying) {
                     await this.play();
                 }
@@ -126,6 +226,41 @@ class PlayerService {
                 await this.play();
             }
         }
+    }
+    
+    /**
+     * Save player state to localStorage
+     */
+    saveState() {
+        if (!this.audio) return;
+        
+        localStorage.setItem('currentTrackIndex', this.currentTrackIndex);
+        localStorage.setItem('isPlaying', this.isPlaying);
+        localStorage.setItem('volume', this.audio.volume);
+        localStorage.setItem('currentTime', this.audio.currentTime);
+        if (this.currentTrack) {
+            localStorage.setItem('currentTrack', this.currentTrack.filename);
+        }
+    }
+    
+    /**
+     * Handle page visibility changes
+     */
+    handleVisibilityChange() {
+        if (document.visibilityState === 'hidden') {
+            // Update localStorage when page is hidden
+            this.saveState();
+        } else if (document.visibilityState === 'visible') {
+            // Sync with localStorage when page becomes visible
+            this.syncStateFromStorage();
+        }
+    }
+    
+    /**
+     * Handle track end event
+     */
+    handleTrackEnd() {
+        this.playNext();
     }
     
     /**
@@ -198,36 +333,6 @@ class PlayerService {
         this.audio.volume = Math.max(0, Math.min(1, volume));
         localStorage.setItem('volume', this.audio.volume);
         this.triggerEvent('volumeChanged', { volume: this.audio.volume });
-    }
-    
-    /**
-     * Handle track end event
-     */
-    handleTrackEnd() {
-        this.playNext();
-    }
-    
-    /**
-     * Handle page visibility changes
-     */
-    handleVisibilityChange() {
-        if (document.visibilityState === 'hidden') {
-            // Update localStorage when page is hidden
-            this.saveState();
-        }
-    }
-    
-    /**
-     * Save player state to localStorage
-     */
-    saveState() {
-        localStorage.setItem('currentTrackIndex', this.currentTrackIndex);
-        localStorage.setItem('isPlaying', this.isPlaying);
-        localStorage.setItem('volume', this.audio.volume);
-        localStorage.setItem('currentTime', this.audio.currentTime);
-        if (this.currentTrack) {
-            localStorage.setItem('currentTrack', this.currentTrack.filename);
-        }
     }
     
     /**

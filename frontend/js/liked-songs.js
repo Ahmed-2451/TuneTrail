@@ -10,28 +10,50 @@
         // Make sure playerService exists
         if (!window.playerService) {
             console.log('PlayerService not found, creating it now');
-            window.playerService = new PlayerService();
-            // Give it a moment to initialize
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // Wait for scripts to load if they haven't yet
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Check again after waiting
+            if (!window.playerService && typeof PlayerService !== 'undefined') {
+                window.playerService = new PlayerService();
+                // Give it a moment to initialize
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
         }
         
         // Make sure player instance exists
         if (!window.player) {
             console.log('MusicPlayer not found, creating it now');
-            window.player = new MusicPlayer();
-            // Give it a moment to initialize
-            await new Promise(resolve => setTimeout(resolve, 200));
+            if (typeof MusicPlayer !== 'undefined') {
+                window.player = new MusicPlayer();
+                // Give it a moment to initialize
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
         }
         
-        // Get player service instance
+        // Get player service instance - use directly from window to ensure it's the latest
         const playerService = window.playerService;
         if (!playerService) {
-            throw new Error("Player service not initialized properly");
+            console.error("Player service not initialized properly");
+            throw new Error("Player service not available");
         }
         
         // Load tracks from API
-        const tracks = await playerService.loadTracks();
+        let tracks;
+        try {
+            tracks = await playerService.loadTracks();
+        } catch (err) {
+            console.error("Error loading tracks:", err);
+            // Try again once with a delay in case of timing issues
+            await new Promise(resolve => setTimeout(resolve, 500));
+            tracks = await playerService.loadTracks();
+        }
+        
         const tracksContainer = document.getElementById('tracks-container');
+        if (!tracksContainer) {
+            console.error("Tracks container not found in the DOM");
+            return;
+        }
         
         if (!tracks || tracks.length === 0) {
             // Show message if no tracks are available
