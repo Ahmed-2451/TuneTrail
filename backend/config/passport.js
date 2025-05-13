@@ -30,8 +30,16 @@ passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   }
 }));
 
+// Set production Google callback URL if in production mode and not explicitly configured
+if (process.env.NODE_ENV === 'production' && !process.env.GOOGLE_CALLBACK_URL) {
+  process.env.GOOGLE_CALLBACK_URL = 'https://spotify-clone-5.onrender.com/auth/google/callback';
+  console.log(`Production detected, setting GOOGLE_CALLBACK_URL to: ${process.env.GOOGLE_CALLBACK_URL}`);
+}
+
 // Google OAuth Strategy - only set up if environment variables are configured
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_CALLBACK_URL) {
+  console.log(`Using Google callback URL: ${process.env.GOOGLE_CALLBACK_URL}`);
+  
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,

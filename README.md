@@ -106,6 +106,33 @@ To enable the chatbots to search the web for real-time information such as weath
 
 Without these credentials, the chatbot will still work but won't be able to provide real-time information.
 
+## Deployment
+
+### Google OAuth in Production
+
+When deploying to a platform like Render, you need to configure Google OAuth correctly:
+
+1. **Update Google Cloud Console settings**:
+   - Go to https://console.cloud.google.com/
+   - Navigate to your project
+   - Go to "APIs & Services" > "Credentials"
+   - Find and edit your OAuth 2.0 Client ID
+   - Add your production redirect URL: `https://your-render-app-name.onrender.com/auth/google/callback`
+   
+2. **Configure environment variables in Render**:
+   - In your Render dashboard, navigate to your web service
+   - Go to the "Environment" tab
+   - Add the following environment variables:
+     - `NODE_ENV`: `production`
+     - `GOOGLE_CLIENT_ID`: Your Google Client ID
+     - `GOOGLE_CLIENT_SECRET`: Your Google Client Secret
+     - `GOOGLE_CALLBACK_URL`: `https://your-render-app-name.onrender.com/auth/google/callback`
+
+3. **Update start command in Render**:
+   - Set the start command to: `npm run start:production`
+
+If you can't access the Render dashboard to update environment variables, the application includes a fallback mechanism that will automatically set the correct Google callback URL in production mode.
+
 ## Project Structure
 
 - `/backend`: Node.js server, API endpoints, database models
