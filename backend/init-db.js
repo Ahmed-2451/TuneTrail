@@ -122,21 +122,30 @@ async function initializeDatabase() {
     await sequelize.authenticate();
     console.log('Connected to PostgreSQL successfully');
     
-    // Then sync all models (force:true will drop tables and recreate them)
+    // Then sync all models - use alter instead of force for production safety
     console.log('Syncing database models...');
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
     console.log('Database sync complete');
     
-    // Create admin user
-    console.log('Creating admin user...');
-    await Users.create({
-      username: 'admin',
-      email: 'admin@spotify.com',
-      password: 'admin123',
-      name: 'Admin User',
-      isAdmin: true
+    // Check if admin user exists
+    const adminExists = await Users.findOne({
+      where: { email: 'admin@spotify.com' }
     });
-    console.log('Admin user created');
+    
+    // Create admin user only if it doesn't exist
+    if (!adminExists) {
+      console.log('Creating admin user...');
+      await Users.create({
+        username: 'admin',
+        email: 'admin@spotify.com',
+        password: 'admin123',
+        name: 'Admin User',
+        isAdmin: true
+      });
+      console.log('Admin user created');
+    } else {
+      console.log('Admin user already exists, skipping creation');
+    }
     
     // Create a test track table using raw SQL (necessary for your app)
     const Pool = require('pg').Pool;

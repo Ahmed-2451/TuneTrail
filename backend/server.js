@@ -211,6 +211,7 @@ app.post('/api/signup', async (req, res) => {
     const { email, password, name, username } = req.body;
     
     try {
+        console.log(`Signup attempt for: ${email}, username: ${username}`);
         const user = await Users.create({
             email,
             password, // In a real app, you should hash passwords
@@ -219,10 +220,25 @@ app.post('/api/signup', async (req, res) => {
             isAdmin: false
         });
         
+        console.log(`User created successfully: ${email}`);
         res.json({ success: true, user });
     } catch (error) {
-        console.error('Signup error:', error);
-        res.status(500).json({ success: false, message: 'Error creating user' });
+        console.error('Signup error details:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Email or username already exists' 
+            });
+        }
+        
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error creating user',
+            error: process.env.NODE_ENV === 'development' ? error.toString() : 'Internal server error'
+        });
     }
 });
 
@@ -231,6 +247,7 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     
     try {
+        console.log(`Login attempt for: ${email}`);
         const user = await Users.findOne({
             where: {
                 email: email,
@@ -241,22 +258,25 @@ app.post('/api/login', async (req, res) => {
         if (user) {
             // Check if the email is the admin email
             const isAdmin = email === 'admin@spotify.com';
+            console.log(`Login successful for: ${email}, isAdmin: ${isAdmin}`);
             
             res.json({ 
                 success: true,
                 isAdmin: isAdmin
             });
         } else {
+            console.log(`Login failed for: ${email} - Invalid credentials`);
             res.status(401).json({ 
                 success: false, 
                 message: 'Invalid credentials' 
             });
         }
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login error details:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Server error' 
+            message: 'Server error',
+            error: process.env.NODE_ENV === 'development' ? error.toString() : 'Internal server error'
         });
     }
 });
