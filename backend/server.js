@@ -45,9 +45,17 @@ const pool = new Pool({
 
 async function initializeDatabase() {
     try {
-        // Sync Sequelize models
-        await sequelize.sync({ alter: true });
+        console.log('Syncing Sequelize models...');
+        // Use force in development, alter in production
+        const syncOptions = process.env.NODE_ENV === 'development' 
+            ? { force: true } 
+            : { alter: true };
         
+        await sequelize.sync(syncOptions);
+        console.log('Sequelize models synced successfully');
+        
+        // Create tracks table
+        console.log('Creating tracks table if not exists...');
         await pool.query(`
             CREATE TABLE IF NOT EXISTS tracks (
                 id SERIAL PRIMARY KEY,
@@ -60,8 +68,10 @@ async function initializeDatabase() {
             )
         `);
 
+        // Add sample tracks if empty
         const { rows } = await pool.query('SELECT * FROM tracks');
         if (rows.length === 0) {
+            console.log('Adding sample tracks...');
             await pool.query(`
                 INSERT INTO tracks (title, artist, filename, album, cover_url)
                 VALUES 
@@ -69,9 +79,11 @@ async function initializeDatabase() {
                 ('Cry', 'Cigarettes After Sex', 'Cry - Cigarettes After Sex.mp3', 'Cry', '/images/image.jpg'),
                 ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg')
             `);
+            console.log('Sample tracks added');
         }
     } catch (err) {
         console.error('Database initialization error:', err);
+        // Don't throw the error - allow the app to start anyway
     }
 }
 
