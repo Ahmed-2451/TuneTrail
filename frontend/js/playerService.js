@@ -260,5 +260,5 @@ class PlayerService {
     }
 }
 
-// Create a single instance of the player service
-const playerService = new PlayerService(); 
+// Create a single instance of the player service and make it globally available
+window.playerService = new PlayerService(); 

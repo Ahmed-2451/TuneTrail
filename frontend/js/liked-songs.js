@@ -1,12 +1,33 @@
 (async () => {
     try {
+        // Wait for document to be fully loaded
+        if (document.readyState !== 'complete') {
+            await new Promise(resolve => {
+                window.addEventListener('load', resolve);
+            });
+        }
+        
+        // Make sure playerService exists
+        if (!window.playerService) {
+            console.log('PlayerService not found, creating it now');
+            window.playerService = new PlayerService();
+            // Give it a moment to initialize
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
         // Make sure player instance exists
         if (!window.player) {
+            console.log('MusicPlayer not found, creating it now');
             window.player = new MusicPlayer();
+            // Give it a moment to initialize
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
         
         // Get player service instance
         const playerService = window.playerService;
+        if (!playerService) {
+            throw new Error("Player service not initialized properly");
+        }
         
         // Load tracks from API
         const tracks = await playerService.loadTracks();
@@ -38,8 +59,16 @@
         
         tracks.forEach((track, index) => {
             const row = document.createElement('tr');
-            // Format duration using the formatTime from MusicPlayer
-            const duration = track.duration > 0 ? window.player.formatTime(track.duration) : '-:--';
+            // Format duration safely
+            const formatTime = (seconds) => {
+                if (!seconds || isNaN(seconds) || seconds < 0) {
+                    return '0:00';
+                }
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+            const duration = track.duration > 0 ? formatTime(track.duration) : '-:--';
             
             row.innerHTML = `
                 <td class="track-number">${index + 1}</td>
@@ -59,11 +88,15 @@
             `;
             
             row.addEventListener('click', async () => {
-                // Play/pause or load a different track
-                if (playerService.currentTrackIndex === index && playerService.isPlaying) {
-                    await playerService.togglePlayPause();
-                } else {
-                    await playerService.loadTrack(index, true);
+                try {
+                    // Play/pause or load a different track
+                    if (playerService.currentTrackIndex === index && playerService.isPlaying) {
+                        await playerService.togglePlayPause();
+                    } else {
+                        await playerService.loadTrack(index, true);
+                    }
+                } catch (error) {
+                    console.error('Error playing track:', error);
                 }
             });
             
