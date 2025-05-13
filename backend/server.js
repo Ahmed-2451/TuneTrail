@@ -18,7 +18,9 @@ const server = createServer(app);
 initializeSocketIO(server);
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:3001'],
+    origin: process.env.NODE_ENV === 'production' 
+        ? '*' // Allow all origins in production
+        : ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:3001'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
