@@ -76,7 +76,11 @@ self.addEventListener('fetch', event => {
     }
 
     // Handle cross-origin requests to the backend
-    if (event.request.url.startsWith('http://localhost:3001')) {
+    // Check if the request is to our API backend
+    if (event.request.url.includes('/api/') || 
+        event.request.url.includes('/tracks/') || 
+        event.request.url.startsWith('http://localhost:3001')) {
+        
         event.respondWith(
             (async () => {
                 try {

@@ -90,7 +90,7 @@ class MusicPlayer {
     async loadTracks() {
         try {
             console.log('Fetching tracks from API...');
-            const apiUrl = 'http://localhost:3001/api/tracks';
+            const apiUrl = `${config.API_URL}/tracks`;
             console.log('API URL:', apiUrl);
             
             const response = await fetch(apiUrl);
@@ -149,7 +149,12 @@ class MusicPlayer {
     async loadTrack(index, shouldPlay = false) {
         if (index >= 0 && index < this.tracks.length) {
             const track = this.tracks[index];
-            this.audio.src = `http://localhost:3001/tracks/${encodeURIComponent(track.filename)}`;
+            // Use relative URL that works in both dev and prod
+            const trackUrl = window.location.hostname === 'localhost'
+                ? `http://localhost:3001/tracks/${encodeURIComponent(track.filename)}`
+                : `/tracks/${encodeURIComponent(track.filename)}`;
+            
+            this.audio.src = trackUrl;
             
             // Update track info
             this.songTitle.textContent = track.title;

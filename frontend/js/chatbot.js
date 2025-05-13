@@ -114,7 +114,7 @@ function initChatbot() {
             }
         }, 5000);
         
-        fetch(`http://localhost:3001/api/chatbot/${type}/message`, {
+        fetch(`${config.API_URL}/chatbot/${type}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ function initChatbot() {
 
     function loadChatHistory(type) {
         if (!localStorage.getItem('token')) return;
-        fetch(`http://localhost:3001/api/chatbot/${type}/history`, {
+        fetch(`${config.API_URL}/chatbot/${type}/history`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -235,7 +235,7 @@ function initChatbot() {
             alert('You need to be logged in to export chat history');
             return;
         }
-        window.open(`http://localhost:3001/api/chatbot/${type}/export`, '_blank');
+        window.open(`${config.API_URL}/chatbot/${type}/export`, '_blank');
     }
 
     function clearChatHistory(type) {
@@ -244,7 +244,7 @@ function initChatbot() {
             return;
         }
         if (confirm('Are you sure you want to clear your chat history? This cannot be undone.')) {
-            fetch(`http://localhost:3001/api/chatbot/${type}/history`, {
+            fetch(`${config.API_URL}/chatbot/${type}/history`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

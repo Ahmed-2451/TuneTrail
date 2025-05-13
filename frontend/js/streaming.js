@@ -1,5 +1,8 @@
 // Connect to Socket.IO server
-const socket = io('http://localhost:3001');
+const socketUrl = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001'
+    : window.location.origin;
+const socket = io(socketUrl);
 
 // UI Elements
 const streamerControls = document.getElementById('streamer-controls');
@@ -27,7 +30,7 @@ async function getCurrentUser() {
             return;
         }
 
-        const response = await fetch('http://localhost:3001/api/auth/profile', {
+        const response = await fetch(`${config.API_URL}/auth/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
