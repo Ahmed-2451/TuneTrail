@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Set the production URL with your Render app name
-const PRODUCTION_CALLBACK_URL = 'https://spotify-clone.onrender.com/api/auth/google/callback';
+const PRODUCTION_CALLBACK_URL = 'https://spotify-clone.onrender.com/auth/google/callback';
 
 console.log('Updating Google OAuth callback URL for production environment...');
 console.log(`Set the following URL in Google Cloud Console: ${PRODUCTION_CALLBACK_URL}`);

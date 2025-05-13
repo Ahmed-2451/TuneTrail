@@ -35,6 +35,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// Special case for Google OAuth callback URLs - handle both with and without /api prefix
+app.get('/auth/google/callback', (req, res) => {
+    console.log('Redirecting Google callback to /api/auth/google/callback');
+    const queryString = Object.keys(req.query).length > 0 
+        ? '?' + new URLSearchParams(req.query).toString() 
+        : '';
+    res.redirect(`/api/auth/google/callback${queryString}`);
+});
+
 // Auth routes
 app.use('/api/auth', authRoutes);
 

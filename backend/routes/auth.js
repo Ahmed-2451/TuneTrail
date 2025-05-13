@@ -132,7 +132,12 @@ router.get('/google/callback',
       : 'http://localhost:3001';
     
     // Redirect to frontend with token
-    res.redirect(`${frontendUrl}/auth-success.html?token=${token}`);
+    res.redirect(`${frontendUrl}/auth-success.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      name: req.user.name
+    }))}`);
   }
 );
 
