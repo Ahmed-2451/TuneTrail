@@ -1,6 +1,9 @@
 require('dotenv').config();
 const sequelize = require('./config/db');
 const Users = require('./models/users');
+// Import any other models here if needed
+// const Songs = require('./models/songs');
+// const LikedSong = require('./models/likedsong');
 
 async function forceSyncTables() {
   try {
@@ -19,6 +22,12 @@ async function forceSyncTables() {
       isAdmin: true
     });
     console.log('Admin account created successfully');
+    
+    // Log tables created
+    const [results] = await sequelize.query(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+    );
+    console.log('Tables created:', results.map(r => r.table_name).join(', '));
     
     console.log('Database setup complete');
     process.exit(0);
