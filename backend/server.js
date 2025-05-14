@@ -328,8 +328,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => { // Listen on all network interfaces for better production compatibility
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     console.log(`Frontend available at http://localhost:${PORT}`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });
