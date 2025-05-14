@@ -179,7 +179,12 @@ async function initializeDatabase() {
         VALUES 
         ('K.', 'Cigarettes After Sex', 'K. - Cigarettes After Sex.mp3', 'K.', '/images/image.jpg'),
         ('Cry', 'Cigarettes After Sex', 'Cry - Cigarettes After Sex.mp3', 'Cry', '/images/image.jpg'),
-        ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg')
+        ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg'),
+        ('Flash', 'Cigarettes After Sex', 'Flash.mp3', 'Flash', '/images/image.jpg'),
+        ('Opera House', 'Cigarettes After Sex', 'Opera House.mp3', 'Opera House', '/images/image.jpg'),
+        ('John Wayne', 'Cigarettes After Sex', 'John Wayne.mp3', 'John Wayne', '/images/image.jpg'),
+        ('Sweet', 'Cigarettes After Sex', 'Sweet.mp3', 'Sweet', '/images/image.jpg'),
+        ('Each Time You Fall in Love', 'Cigarettes After Sex', 'Each Time You Fall in Love.mp3', 'Each Time You Fall in Love', '/images/image.jpg')
       `);
       console.log('Sample tracks added');
     }

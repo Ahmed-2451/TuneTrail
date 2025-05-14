@@ -79,6 +79,12 @@
         // Get current track index
         const currentIndex = playerService.currentTrackIndex;
         
+        // Format date for display
+        const formatDate = (dateStr) => {
+            const date = dateStr ? new Date(dateStr) : new Date();
+            return date.toLocaleDateString();
+        };
+        
         tracks.forEach((track, index) => {
             const row = document.createElement('tr');
             // Format duration safely
@@ -105,7 +111,7 @@
                     </div>
                 </td>
                 <td>${track.album || track.title}</td>
-                <td>${new Date().toLocaleDateString()}</td>
+                <td>${formatDate(track.date_added)}</td>
                 <td class="track-duration">${duration}</td>
             `;
             

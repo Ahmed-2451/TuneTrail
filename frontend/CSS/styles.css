@@ -153,6 +153,7 @@
 /* Tracks List Styles */
 .tracks-list {
     padding: 0 32px;
+    padding-bottom: 90px; /* Added padding at the bottom to prevent player from covering last song */
 }
 
 .tracks-list table {
@@ -401,6 +402,7 @@ body {
     background: linear-gradient(to bottom, #1a1a1a, #121212);
     min-height: 100vh;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    padding-bottom: 90px; /* Added padding to ensure content doesn't get covered by player */
 }
 
 /* Topbar styles */
