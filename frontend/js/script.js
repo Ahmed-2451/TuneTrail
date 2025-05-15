@@ -1,7 +1,17 @@
 // Common functionality for all pages
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const navLinks = document.querySelectorAll('.navigation a');
+    
+    // Set playback source to 'all' when on the homepage
+    if ((currentPage === 'index.html' || currentPage === '') && window.playerService) {
+        await window.playerService.setPlaybackSource('all');
+        
+        // If shuffle is on, regenerate the shuffle queue for all tracks
+        if (window.playerService.isShuffleOn) {
+            window.playerService.generateShuffleQueue();
+        }
+    }
     
     navLinks.forEach(link => {
         const href = link.getAttribute('href');

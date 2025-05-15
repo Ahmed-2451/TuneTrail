@@ -100,6 +100,18 @@ async function initializeDatabase() {
             )
         `);
 
+        // Create user_liked_songs table
+        console.log('Creating user_liked_songs table if not exists...');
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_liked_songs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                track_id INTEGER NOT NULL,
+                liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, track_id)
+            )
+        `);
+
         // Add sample tracks if empty
         const { rows } = await pool.query('SELECT * FROM tracks');
         if (rows.length === 0) {
@@ -109,12 +121,7 @@ async function initializeDatabase() {
                 VALUES 
                 ('K.', 'Cigarettes After Sex', 'K. - Cigarettes After Sex.mp3', 'K.', '/images/image.jpg'),
                 ('Cry', 'Cigarettes After Sex', 'Cry - Cigarettes After Sex.mp3', 'Cry', '/images/image.jpg'),
-                ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg'),
-                ('Flash', 'Cigarettes After Sex', 'Flash.mp3', 'Flash', '/images/image.jpg'),
-                ('Opera House', 'Cigarettes After Sex', 'Opera House.mp3', 'Opera House', '/images/image.jpg'),
-                ('John Wayne', 'Cigarettes After Sex', 'John Wayne.mp3', 'John Wayne', '/images/image.jpg'),
-                ('Sweet', 'Cigarettes After Sex', 'Sweet.mp3', 'Sweet', '/images/image.jpg'),
-                ('Each Time You Fall in Love', 'Cigarettes After Sex', 'Each Time You Fall in Love.mp3', 'Each Time You Fall in Love', '/images/image.jpg')
+                ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg')
             `);
             console.log('Sample tracks added');
         }
@@ -218,6 +225,72 @@ app.post('/api/playback/volume', (req, res) => {
         playbackState.volume = Math.max(0, Math.min(1, volume));
     }
     res.json(playbackState);
+});
+
+// Liked songs endpoints
+app.get('/api/liked-songs', async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT t.* FROM tracks t
+            JOIN user_liked_songs uls ON t.id = uls.track_id
+            WHERE uls.user_id = $1
+            ORDER BY uls.liked_at DESC
+        `, [req.query.userId || 1]); // Default to user ID 1 if not specified
+        
+        res.json(rows);
+    } catch (err) {
+        console.error('Error fetching liked songs:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+app.post('/api/tracks/:id/like', async (req, res) => {
+    try {
+        const trackId = req.params.id;
+        const userId = req.body.userId || 1; // Default to user ID 1 if not specified
+        
+        // Check if already liked
+        const { rows } = await pool.query(
+            'SELECT * FROM user_liked_songs WHERE user_id = $1 AND track_id = $2',
+            [userId, trackId]
+        );
+        
+        if (rows.length > 0) {
+            // Unlike: Remove from liked songs
+            await pool.query(
+                'DELETE FROM user_liked_songs WHERE user_id = $1 AND track_id = $2',
+                [userId, trackId]
+            );
+            res.json({ liked: false });
+        } else {
+            // Like: Add to liked songs
+            await pool.query(
+                'INSERT INTO user_liked_songs (user_id, track_id, liked_at) VALUES ($1, $2, NOW())',
+                [userId, trackId]
+            );
+            res.json({ liked: true });
+        }
+    } catch (err) {
+        console.error('Error toggling like status:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+app.get('/api/tracks/:id/like', async (req, res) => {
+    try {
+        const trackId = req.params.id;
+        const userId = req.query.userId || 1; // Default to user ID 1 if not specified
+        
+        const { rows } = await pool.query(
+            'SELECT * FROM user_liked_songs WHERE user_id = $1 AND track_id = $2',
+            [userId, trackId]
+        );
+        
+        res.json({ liked: rows.length > 0 });
+    } catch (err) {
+        console.error('Error checking like status:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 });
 
 // Admin login endpoint
@@ -328,8 +401,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, '0.0.0.0', () => { // Listen on all network interfaces for better production compatibility
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
     console.log(`Frontend available at http://localhost:${PORT}`);
     console.log(`API available at http://localhost:${PORT}/api`);
 });

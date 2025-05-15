@@ -287,18 +287,62 @@
 }
 
 .progress-bar {
-    flex-grow: 1;
+    flex: 1;
     height: 4px;
-    background-color: var(--hover-white);
+    background: #535353;
     border-radius: 2px;
     cursor: pointer;
+    position: relative;
+    transition: height 0.2s ease;
 }
 
 .progress {
     height: 100%;
-    background-color: var(--primary-green);
+    background: #b3b3b3;
     border-radius: 2px;
-    width: 0;
+    width: 30%;
+    position: relative;
+    transition: width 0.1s linear, background-color 0.2s ease;
+}
+
+/* Progress handle */
+.progress-handle {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 2;
+}
+
+/* Hover effects */
+.progress-bar:hover,
+.progress-bar.hover {
+    height: 6px;
+}
+
+.progress-bar:hover .progress,
+.progress-bar.hover .progress {
+    background: var(--primary-green);
+}
+
+.progress-bar:hover .progress-handle,
+.progress-bar.hover .progress-handle {
+    transform: translateY(-50%) scale(1);
+}
+
+/* Active dragging state */
+.progress-bar.dragging .progress {
+    background: var(--primary-green);
+}
+
+.progress-bar.dragging .progress-handle {
+    transform: translateY(-50%) scale(1.2);
 }
 
 /* Volume Controls */
@@ -313,15 +357,60 @@
 .volume-slider {
     width: 100px;
     height: 4px;
-    background-color: var(--hover-white);
+    background: #535353;
     border-radius: 2px;
     cursor: pointer;
+    position: relative;
+    transition: height 0.2s ease;
 }
 
 .volume-progress {
     height: 100%;
-    background-color: var(--primary-green);
+    background: #b3b3b3;
     border-radius: 2px;
+    width: 70%;
+    position: relative;
+    transition: width 0.1s linear, background-color 0.2s ease;
+}
+
+/* Volume handle */
+.volume-handle {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 2;
+}
+
+/* Hover effects */
+.volume-slider:hover,
+.volume-slider.hover {
+    height: 6px;
+}
+
+.volume-slider:hover .volume-progress,
+.volume-slider.hover .volume-progress {
+    background: var(--primary-green);
+}
+
+.volume-slider:hover .volume-handle,
+.volume-slider.hover .volume-handle {
+    transform: translateY(-50%) scale(1);
+}
+
+/* Active dragging state */
+.volume-slider.dragging .volume-progress {
+    background: var(--primary-green);
+}
+
+.volume-slider.dragging .volume-handle {
+    transform: translateY(-50%) scale(1.2);
 }
 
 /* Reset and base styles */
@@ -562,13 +651,14 @@ body {
 }
 
 .search-bar {
-    background: #ffffff;
-    border-radius: 500px;
-    padding: 8px 16px;
     display: flex;
     align-items: center;
-    margin-bottom: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 300px;
+    padding: 10px 16px;
+    width: 300%;
+    max-width: 500px;
+    margin: auto;
+    transition: all 0.3s ease-in-out;
 }
 
 .search-icon {
@@ -814,12 +904,28 @@ body {
     color: #b3b3b3;
     font-size: 16px;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.2s ease;
     padding: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .like-button:hover {
-    color: #1db954;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.like-button.active,
+.like-button .fas.fa-heart {
+    color: var(--primary-green) !important;
+}
+
+.like-button .fas.fa-heart:hover {
+    filter: brightness(1.2);
 }
 
 .player-controls {
@@ -879,23 +985,6 @@ body {
     min-width: 40px;
 }
 
-.progress-bar {
-    flex: 1;
-    height: 4px;
-    background: #535353;
-    border-radius: 2px;
-    cursor: pointer;
-    position: relative;
-}
-
-.progress {
-    height: 100%;
-    background: #b3b3b3;
-    border-radius: 2px;
-    width: 30%;
-    transition: width 0.1s linear;
-}
-
 .volume-controls {
     width: 30%;
     display: flex;
@@ -926,6 +1015,7 @@ body {
     border-radius: 2px;
     cursor: pointer;
     position: relative;
+    transition: height 0.2s ease;
 }
 
 .volume-progress {
@@ -933,7 +1023,8 @@ body {
     background: #b3b3b3;
     border-radius: 2px;
     width: 70%;
-    transition: width 0.1s linear;
+    position: relative;
+    transition: width 0.1s linear, background-color 0.2s ease;
 }
 
 /* Auth page styles */
@@ -1985,8 +2076,6 @@ button:hover {
     color: white;
 }
 
-
-
 /* Typing indicator */
 .typing-indicator {
     display: flex;
@@ -2025,8 +2114,6 @@ button:hover {
         opacity: 1;
     }
 }
-
-
 
 .profile-container {
     padding: 20px;
@@ -2166,7 +2253,6 @@ button:hover {
     font-size: 16px;
     margin-bottom: 15px;
 }
-
 
 .auth-success-container {
     display: flex;
@@ -2333,4 +2419,84 @@ button:hover {
 .find-songs-link:hover {
     background-color: #1ed760;
     transform: scale(1.05);
+}
+
+/* Active state for player control buttons */
+.control-buttons button.active {
+    color: var(--primary-green) !important;
+    text-shadow: 0 0 5px rgba(29, 185, 84, 0.3);
+    transform: scale(1.1);
+}
+
+/* Active button hover effect */
+.control-buttons button.active:hover {
+    color: var(--primary-green) !important;
+    text-shadow: 0 0 8px rgba(29, 185, 84, 0.5);
+    transform: scale(1.15);
+}
+
+/* Heart button styling for all pages */
+.like-button,
+.search-like-button,
+.track-like-button {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.like-button:hover,
+.search-like-button:hover,
+.track-like-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.like-button.active,
+.like-button .fas.fa-heart,
+.search-like-button.liked,
+.search-like-button .fas.fa-heart,
+.track-like-button.liked,
+.track-like-button .fas.fa-heart {
+    color: var(--primary-green) !important;
+}
+
+.like-button .fas.fa-heart:hover,
+.search-like-button .fas.fa-heart:hover,
+.track-like-button .fas.fa-heart:hover {
+    filter: brightness(1.2);
+}
+
+/* Specific styling for track-like-button in liked-songs page */
+.track-duration {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.duration-text {
+    color: #b3b3b3;
+}
+
+/* Search result like button */
+.search-result {
+    position: relative;
+    padding-right: 50px; /* Space for like button */
+}
+
+.search-like-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
 }
