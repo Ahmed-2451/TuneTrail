@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 const TopBar = () => {
-  const { isAuthenticated, getDisplayName, getUserInitials, logout, showToast } = useAuth()
+  const { isAuthenticated, getDisplayName, getUserInitials, logout, showToast, profilePhoto } = useAuth()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -91,7 +91,15 @@ const TopBar = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <div className="user-avatar">
-                  {getUserInitials(getDisplayName())}
+                  {profilePhoto ? (
+                    <img 
+                      src={profilePhoto} 
+                      alt="Profile" 
+                      className="user-avatar-image"
+                    />
+                  ) : (
+                    getUserInitials(getDisplayName())
+                  )}
                 </div>
                 <span>{getDisplayName()}</span>
                 <i className="fas fa-chevron-down dropdown-arrow"></i>

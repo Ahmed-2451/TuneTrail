@@ -8,6 +8,7 @@ const sequelize = require('./config/db');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
 const chatbotRoutes = require('./routes/chatbotRoutes');
+const playlistRoutes = require('./routes/playlistRoutes');
 const { createServer } = require('http');
 const { initializeSocketIO } = require('./streaming');
 
@@ -66,6 +67,9 @@ app.use('/api/auth', authRoutes);
 
 // Chatbot routes
 app.use('/api/chatbot', chatbotRoutes);
+
+// Playlist routes
+app.use('/api/playlists', playlistRoutes);
 
 // API root route
 app.get('/api', (req, res) => {

@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [profilePhoto, setProfilePhoto] = useState(null)
   const navigate = useNavigate()
 
   // Initialize auth state from localStorage
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedToken = localStorage.getItem('auth_token')
         const storedUser = localStorage.getItem('user_data')
+        const storedProfilePhoto = localStorage.getItem('user_profile_photo')
 
         if (storedToken && storedUser) {
           // Basic token validation (check it's not empty and has valid format)
@@ -32,6 +34,11 @@ export const AuthProvider = ({ children }) => {
             setToken(storedToken)
             setUser(JSON.parse(storedUser))
             setIsAuthenticated(true)
+            
+            // Load profile photo if available
+            if (storedProfilePhoto) {
+              setProfilePhoto(storedProfilePhoto)
+            }
             
             // Set the token in API service
             apiService.setAuthToken(storedToken)
@@ -96,23 +103,23 @@ export const AuthProvider = ({ children }) => {
       const response = await apiService.signup(userData)
       
       if (response.token && response.user) {
-        const { token: authToken, user: newUser } = response
+        const { token: authToken, user: userInfo } = response
         
         // Store in state
         setToken(authToken)
-        setUser(newUser)
+        setUser(userInfo)
         setIsAuthenticated(true)
         
         // Store in localStorage
         localStorage.setItem('auth_token', authToken)
-        localStorage.setItem('user_data', JSON.stringify(newUser))
+        localStorage.setItem('user_data', JSON.stringify(userInfo))
         
         // Set token in API service
         apiService.setAuthToken(authToken)
         
-        showToast('Signup successful!', 'success')
+        showToast('Account created successfully!', 'success')
         
-        return { success: true, user: newUser }
+        return { success: true, user: userInfo }
       } else {
         throw new Error('Invalid response from server')
       }
@@ -120,7 +127,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Signup error:', error)
       return { 
         success: false, 
-        error: error.response?.data?.error || error.message || 'Signup failed'
+        error: error.response?.data?.error || error.message || 'Registration failed'
       }
     } finally {
       setIsLoading(false)
@@ -128,37 +135,54 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    // Clear state
     setUser(null)
     setToken(null)
     setIsAuthenticated(false)
+    setProfilePhoto(null)
     
     // Clear localStorage
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
+    localStorage.removeItem('user_profile_photo')
     
-    // Clear token from API service
-    apiService.clearAuthToken()
+    // Clear API service token
+    apiService.setAuthToken(null)
+    
+    // Navigate to login
+    navigate('/login')
     
     showToast('Logged out successfully', 'info')
-    navigate('/login')
   }
 
   const refreshToken = async () => {
     try {
-      const response = await apiService.refreshToken()
-      if (response.token) {
-        setToken(response.token)
-        localStorage.setItem('auth_token', response.token)
-        apiService.setAuthToken(response.token)
-        return true
-      }
-      return false
+      const storedToken = localStorage.getItem('auth_token')
+      if (!storedToken) return false
+      
+      // TODO: Implement token refresh API call
+      return true
     } catch (error) {
       console.error('Token refresh error:', error)
       logout()
       return false
     }
+  }
+
+  // Profile photo management functions
+  const updateProfilePhoto = (photoDataUrl) => {
+    setProfilePhoto(photoDataUrl)
+    localStorage.setItem('user_profile_photo', photoDataUrl)
+    showToast('Profile photo updated!', 'success')
+  }
+
+  const removeProfilePhoto = () => {
+    setProfilePhoto(null)
+    localStorage.removeItem('user_profile_photo')
+    showToast('Profile photo removed', 'info')
+  }
+
+  const getProfilePhotoUrl = () => {
+    return profilePhoto
   }
 
   const getUserInitials = (name) => {
@@ -219,10 +243,14 @@ export const AuthProvider = ({ children }) => {
     token,
     isLoading,
     isAuthenticated,
+    profilePhoto,
     login,
     signup,
     logout,
     refreshToken,
+    updateProfilePhoto,
+    removeProfilePhoto,
+    getProfilePhotoUrl,
     getUserInitials,
     getDisplayName,
     showToast

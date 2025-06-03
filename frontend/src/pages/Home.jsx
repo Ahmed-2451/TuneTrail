@@ -13,7 +13,7 @@ const Home = () => {
     { id: 2, name: 'Hip-Hop', color: '#ef4444', icon: 'fas fa-microphone' },
     { id: 3, name: 'Rock', color: '#f59e0b', icon: 'fas fa-guitar' },
     { id: 4, name: 'Pop', color: '#10b981', icon: 'fas fa-star' },
-    { id: 5, name: 'Jazz', color: '#6366f1', icon: 'fas fa-saxophone' },
+    { id: 5, name: 'Jazz', color: '#6366f1', icon: 'fas fa-trumpet' },
     { id: 6, name: 'Classical', color: '#ec4899', icon: 'fas fa-music' }
   ])
   const [loading, setLoading] = useState(true)
@@ -124,7 +124,7 @@ const Home = () => {
       id: 2,
       title: 'Your Playlists',
       subtitle: 'Created by you',
-      icon: 'fas fa-list-music',
+      icon: 'fas fa-list',
       color: '#10b981',
       link: '/playlists'
     },

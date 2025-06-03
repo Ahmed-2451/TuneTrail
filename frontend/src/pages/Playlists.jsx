@@ -10,6 +10,7 @@ const Playlists = () => {
   
   const [playlists, setPlaylists] = useState([])
   const [likedSongsCount, setLikedSongsCount] = useState(0)
+  const [likedSongsDuration, setLikedSongsDuration] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -52,16 +53,30 @@ const Playlists = () => {
 
   const loadLikedSongsCount = async () => {
     try {
-      if (user?.id) {
-        const likedResponse = await fetch(`/api/users/${user.id}/liked-songs`)
-        if (likedResponse.ok) {
-          const likedData = await likedResponse.json()
-          setLikedSongsCount(likedData.length)
-        }
+      const userId = user?.id || 1
+      console.log(`📊 Loading liked songs count for user ${userId}`)
+      
+      const response = await fetch(`/api/users/${userId}/liked-songs`)
+      if (response.ok) {
+        const likedTracks = await response.json()
+        setLikedSongsCount(likedTracks.length)
+        
+        // Calculate total duration
+        const totalDuration = likedTracks.reduce((total, track) => {
+          return total + (track.duration || 180) // Default to 3 minutes if duration is missing
+        }, 0)
+        setLikedSongsDuration(totalDuration)
+        
+        console.log(`✅ Found ${likedTracks.length} liked songs with total duration: ${formatDuration(totalDuration)}`)
+      } else {
+        console.warn('Failed to load liked songs count')
+        setLikedSongsCount(0)
+        setLikedSongsDuration(0)
       }
     } catch (error) {
       console.error('Error loading liked songs count:', error)
-      setLikedSongsCount(getLikedSongsCount() || 0)
+      setLikedSongsCount(0)
+      setLikedSongsDuration(0)
     }
   }
 
@@ -246,6 +261,79 @@ const Playlists = () => {
     })
   }
 
+  const handlePlayPlaylist = async (playlist) => {
+    try {
+      if (!playlist || !playlist.tracks || playlist.tracks.length === 0) {
+        // Show a more user-friendly notification
+        const notification = document.createElement('div')
+        notification.className = 'notification error'
+        notification.innerHTML = `
+          <div class="notification-content">
+            <div class="notification-title">Playlist is empty</div>
+            <div class="notification-message">"${playlist?.name || 'This playlist'}" has no songs. Add some tracks first!</div>
+          </div>
+        `
+        document.body.appendChild(notification)
+        setTimeout(() => document.body.removeChild(notification), 3000)
+        return
+      }
+
+      // Play the first track and set the entire playlist as the queue
+      playTrack(playlist.tracks[0], playlist.tracks)
+      
+      // Show success notification
+      const notification = document.createElement('div')
+      notification.className = 'notification success'
+      notification.innerHTML = `
+        <div class="notification-content">
+          <div class="notification-title">Now playing</div>
+          <div class="notification-message">"${playlist.name}" • ${playlist.tracks.length} tracks</div>
+        </div>
+      `
+      document.body.appendChild(notification)
+      setTimeout(() => document.body.removeChild(notification), 3000)
+      
+      console.log(`🎵 Now playing "${playlist.name}" with ${playlist.tracks.length} tracks`)
+    } catch (error) {
+      console.error('Error playing playlist:', error)
+      const notification = document.createElement('div')
+      notification.className = 'notification error'
+      notification.innerHTML = `
+        <div class="notification-content">
+          <div class="notification-title">Failed to play playlist</div>
+          <div class="notification-message">Please try again</div>
+        </div>
+      `
+      document.body.appendChild(notification)
+      setTimeout(() => document.body.removeChild(notification), 3000)
+    }
+  }
+
+  const handlePlaylistClick = (playlist) => {
+    // If it's the liked songs playlist, navigate to it
+    if (playlist.id === 'liked-songs') {
+      navigate('/liked-songs')
+      return
+    }
+
+    // For other playlists, check if they have tracks and play them
+    if (playlist.tracks && playlist.tracks.length > 0) {
+      handlePlayPlaylist(playlist)
+    } else {
+      // Show notification for empty playlist
+      const notification = document.createElement('div')
+      notification.className = 'notification warning'
+      notification.innerHTML = `
+        <div class="notification-content">
+          <div class="notification-title">Playlist is empty</div>
+          <div class="notification-message">"${playlist.name}" has no songs. Add some tracks to start listening!</div>
+        </div>
+      `
+      document.body.appendChild(notification)
+      setTimeout(() => document.body.removeChild(notification), 3000)
+    }
+  }
+
   if (!isAuthenticated) {
     return null
   }
@@ -297,6 +385,12 @@ const Playlists = () => {
               <p className="playlist-description">Your favorite tracks</p>
               <div className="playlist-stats">
                 <span className="track-count">{likedSongsCount} songs</span>
+                {likedSongsDuration > 0 && (
+                  <>
+                    <span className="separator">•</span>
+                    <span className="duration">{formatDuration(likedSongsDuration)}</span>
+                  </>
+                )}
               </div>
               <div className="playlist-meta">
                 <span className="visibility">
@@ -309,7 +403,12 @@ const Playlists = () => {
 
           {/* User Created Playlists */}
           {playlists.map((playlist) => (
-            <div key={playlist.id} className="playlist-card">
+            <div 
+              key={playlist.id} 
+              className="playlist-card"
+              onClick={() => handlePlaylistClick(playlist)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="playlist-image">
                 <img 
                   src={getPlaylistImage(playlist)} 
@@ -320,18 +419,22 @@ const Playlists = () => {
                 </div>
                 <div className="playlist-actions">
                   <div className="dropdown">
-                    <button className="action-btn dropdown-toggle" title="More options">
+                    <button 
+                      className="action-btn dropdown-toggle" 
+                      title="More options"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <i className="fas fa-ellipsis-h"></i>
                     </button>
                     <div className="dropdown-menu">
-                      <button onClick={() => openEditModal(playlist)}>
+                      <button onClick={(e) => { e.stopPropagation(); openEditModal(playlist); }}>
                         <i className="fas fa-edit"></i> Edit Details
                       </button>
-                      <button onClick={() => togglePlaylistVisibility(playlist.id)}>
+                      <button onClick={(e) => { e.stopPropagation(); togglePlaylistVisibility(playlist.id); }}>
                         <i className={`fas ${playlist.isPublic ? 'fa-lock' : 'fa-globe'}`}></i>
                         Make {playlist.isPublic ? 'Private' : 'Public'}
                       </button>
-                      <button onClick={() => openDeleteModal(playlist)} className="danger">
+                      <button onClick={(e) => { e.stopPropagation(); openDeleteModal(playlist); }} className="danger">
                         <i className="fas fa-trash"></i> Delete Playlist
                       </button>
                     </div>

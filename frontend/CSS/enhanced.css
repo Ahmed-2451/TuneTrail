@@ -1784,10 +1784,7 @@ body {
 }
 
 /* Heart button in liked songs - always purple since all songs are liked */
-.track-duration-cell .like-button {
-    opacity: 0;
-    transition: var(--transition-normal);
-}
+
 
 .track-item:hover .track-duration-cell .like-button {
     opacity: 1;
@@ -1916,20 +1913,6 @@ body {
     }
 }
 
-/* Consistent styling for all heart button variations */
-.like-btn,
-.action-btn.heart-btn,
-.action-btn.liked {
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: var(--transition-normal);
-}
-
-.like-btn:hover,
-.action-btn.heart-btn:hover {
-    color: var(--text-primary);
-    transform: scale(1.1);
-}
 
 /* Purple heart when liked - consistent across all pages */
 .like-btn.liked,
@@ -1952,7 +1935,7 @@ body {
 
 .like-btn.liked i,
 .action-btn.heart-btn.liked i {
-    font-weight: 900;
+    color: var(--primary-purple) !important;
 }
 
 /* Logo Glow Animation */
@@ -3262,6 +3245,49 @@ body {
 .auth-footer a:focus-visible {
     outline: 2px solid var(--primary-purple);
     outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .auth-page::before,
+    .auth-page::after {
+        animation: none;
+    }
+    
+    .auth-button::before {
+        transition: none;
+    }
+    
+    .auth-card:hover {
+        transform: none;
+    }
+    
+    .auth-button:hover,
+    .auth-button.primary:hover,
+    .auth-button.google:hover {
+        transform: none;
+    }
+}
+
+/* Liked Songs Page - Heart buttons always purple */
+.liked-songs-page .heart-btn,
+.liked-songs-page .like-button,
+.liked-songs-page .action-btn.heart-btn {
+    color: var(--primary-purple) !important;
+}
+
+.liked-songs-page .heart-btn:hover,
+.liked-songs-page .like-button:hover,
+.liked-songs-page .action-btn.heart-btn:hover {
+    color: var(--primary-purple-light) !important;
+    background: rgba(139, 92, 246, 0.1);
+    transform: scale(1.1);
+}
+
+.liked-songs-page .heart-btn i,
+.liked-songs-page .like-button i,
+.liked-songs-page .action-btn.heart-btn i {
+    font-weight: 900;
 }
 
 /* Reduced Motion Support */

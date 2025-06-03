@@ -6,13 +6,12 @@ import { getThemedTrackImage, getThemedTrackThumbnail } from '../utils/trackImag
 
 const Profile = () => {
   const navigate = useNavigate()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout, profilePhoto, updateProfilePhoto, removeProfilePhoto, getUserInitials, getDisplayName } = useAuth()
   const { playTrack, currentTrack, isPlaying, toggleLike, isLiked, getLikedSongsCount } = usePlayer()
   
   const [likedTracks, setLikedTracks] = useState([])
   const [userPlaylists, setUserPlaylists] = useState([])
   const [loading, setLoading] = useState(true)
-  const [profilePhoto, setProfilePhoto] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -44,7 +43,9 @@ const Profile = () => {
       setShowCreateModal(true)
     }
 
+    // Listen for custom event from sidebar
     window.addEventListener('openCreatePlaylistModal', handleCreatePlaylist)
+    
     return () => {
       window.removeEventListener('openCreatePlaylistModal', handleCreatePlaylist)
     }
@@ -205,11 +206,16 @@ const Profile = () => {
       
       const reader = new FileReader()
       reader.onload = (e) => {
-        setProfilePhoto(e.target.result)
-        // Here you would normally upload to server
-        console.log('Profile photo updated')
+        updateProfilePhoto(e.target.result)
       }
       reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemovePhoto = () => {
+    const confirmed = window.confirm('Are you sure you want to remove your profile photo?')
+    if (confirmed) {
+      removeProfilePhoto()
     }
   }
 
@@ -225,11 +231,15 @@ const Profile = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+  }
+
+  // Calculate total duration of liked songs
+  const getTotalLikedSongsDuration = () => {
+    return likedTracks.reduce((total, track) => {
+      return total + (track.duration || 180) // Default to 3 minutes if duration is missing
+    }, 0)
   }
 
   const getLikedSongsPlaylistImage = () => {
@@ -303,6 +313,40 @@ const Profile = () => {
     `)}`
   }
 
+  const handlePlayPlaylist = async (playlist) => {
+    try {
+      if (!playlist || !playlist.tracks || playlist.tracks.length === 0) {
+        alert(`"${playlist?.name || 'This playlist'}" is empty. Add some songs first!`)
+        return
+      }
+
+      // Play the first track and set the entire playlist as the queue
+      playTrack(playlist.tracks[0], playlist.tracks)
+      
+      // Optional: Show a message about what's playing
+      console.log(`Now playing "${playlist.name}" with ${playlist.tracks.length} tracks`)
+    } catch (error) {
+      console.error('Error playing playlist:', error)
+      alert('Failed to play playlist')
+    }
+  }
+
+  const handlePlaylistClick = (playlist) => {
+    // If it's the liked songs playlist, navigate to it
+    if (playlist.id === 'liked-songs') {
+      navigate('/liked-songs')
+      return
+    }
+
+    // For other playlists, check if they have tracks and play them
+    if (playlist.tracks && playlist.tracks.length > 0) {
+      handlePlayPlaylist(playlist)
+    } else {
+      // If no tracks, show message or navigate to playlist detail page
+      alert(`"${playlist.name}" is empty. Add some songs to this playlist!`)
+    }
+  }
+
   if (!isAuthenticated) {
     return null
   }
@@ -341,30 +385,48 @@ const Profile = () => {
             onChange={handleProfilePhotoChange}
             style={{ display: 'none' }}
           />
+          {profilePhoto && (
+            <button 
+              className="remove-photo-btn"
+              onClick={handleRemovePhoto}
+              title="Remove photo"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
+          )}
         </div>
         <div className="profile-info">
           <p className="profile-type">Profile</p>
-          <h1 className="profile-name">{user?.name || 'Music Lover'}</h1>
+          <h1 className="profile-name">{getDisplayName()}</h1>
           <div className="profile-details">
             <div className="profile-detail-item">
-              <span className="detail-label">Username:</span>
-              <span className="detail-value">@{user?.username || user?.name?.toLowerCase().replace(' ', '') || 'musiclover'}</span>
-            </div>
-            <div className="profile-detail-item">
               <span className="detail-label">Email:</span>
-              <span className="detail-value">{user?.email || 'user@example.com'}</span>
+              <span className="detail-value">{user?.email || 'No email'}</span>
             </div>
             <div className="profile-detail-item">
-              <span className="detail-label">Full Name:</span>
-              <span className="detail-value">{user?.name || 'Music Lover'}</span>
+              <span className="detail-label">Username:</span>
+              <span className="detail-value">{user?.username || user?.name || 'No username'}</span>
+            </div>
+            <div className="profile-detail-item">
+              <span className="detail-label">Member since:</span>
+              <span className="detail-value">
+                {user?.createdAt ? formatDate(user.createdAt) : 'Unknown'}
+              </span>
             </div>
           </div>
           <div className="profile-stats">
-            <span>{stats.totalPlaylists} playlists</span>
-            <span>•</span>
-            <span>{stats.totalLikedSongs} liked songs</span>
-            <span>•</span>
-            <span>{stats.totalListeningTime} minutes of music</span>
+            <div className="stat">
+              <div className="stat-number">{userPlaylists.length}</div>
+              <div className="stat-label">Playlists</div>
+            </div>
+            <div className="stat">
+              <div className="stat-number">{likedTracks.length}</div>
+              <div className="stat-label">Liked Songs</div>
+            </div>
+            <div className="stat">
+              <div className="stat-number">{formatDuration(getTotalLikedSongsDuration())}</div>
+              <div className="stat-label">Total Listening</div>
+            </div>
           </div>
         </div>
         <div className="profile-actions">
@@ -400,28 +462,37 @@ const Profile = () => {
             {/* Liked Songs Playlist */}
             <Link to="/liked-songs" className="playlist-card special-playlist">
               <div className="playlist-image">
-                <img 
-                  src={getLikedSongsPlaylistImage()} 
-                  alt="Liked Songs"
-                />
+                <div 
+                  className="liked-songs-gradient"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f59e0b 100%)',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                </div>
                 <div className="play-overlay">
                   <i className="fas fa-play"></i>
                 </div>
               </div>
               <div className="playlist-info">
                 <h3 className="playlist-name">Liked Songs</h3>
-                <p className="playlist-description">Your favorite tracks all in one place</p>
-                <div className="playlist-stats">
-                  <span>{stats.totalLikedSongs} songs</span>
-                  <span>•</span>
-                  <span>Made for you</span>
-                </div>
+                <p className="playlist-description">{likedTracks.length} songs • {formatDuration(getTotalLikedSongsDuration())}</p>
               </div>
             </Link>
 
             {/* User Created Playlists */}
             {userPlaylists.map((playlist) => (
-              <div key={playlist.id} className="playlist-card">
+              <div 
+                key={playlist.id} 
+                className="playlist-card"
+                onClick={() => handlePlaylistClick(playlist)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="playlist-image">
                   <img 
                     src={getPlaylistImage(playlist)} 
@@ -432,18 +503,22 @@ const Profile = () => {
                   </div>
                   <div className="playlist-actions">
                     <div className="dropdown">
-                      <button className="action-btn dropdown-toggle" title="More options">
+                      <button 
+                        className="action-btn dropdown-toggle" 
+                        title="More options"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <i className="fas fa-ellipsis-h"></i>
                       </button>
                       <div className="dropdown-menu">
-                        <button onClick={() => openEditModal(playlist)}>
+                        <button onClick={(e) => { e.stopPropagation(); openEditModal(playlist); }}>
                           <i className="fas fa-edit"></i> Edit Details
                         </button>
-                        <button onClick={() => togglePlaylistVisibility(playlist.id)}>
+                        <button onClick={(e) => { e.stopPropagation(); togglePlaylistVisibility(playlist.id); }}>
                           <i className={`fas ${playlist.isPublic ? 'fa-lock' : 'fa-globe'}`}></i>
                           Make {playlist.isPublic ? 'Private' : 'Public'}
                         </button>
-                        <button onClick={() => openDeleteModal(playlist)} className="danger">
+                        <button onClick={(e) => { e.stopPropagation(); openDeleteModal(playlist); }} className="danger">
                           <i className="fas fa-trash"></i> Delete Playlist
                         </button>
                       </div>
@@ -520,37 +595,16 @@ const Profile = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Privacy Setting</label>
-                <div className="radio-group">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="playlist-privacy"
-                      value="public"
-                      checked={newPlaylistPublic === 'public'}
-                      onChange={(e) => setNewPlaylistPublic(e.target.value)}
-                    />
-                    <span className="radio-custom"></span>
-                    <div className="radio-content">
-                      <span className="radio-title">Public</span>
-                      <span className="radio-description">Anyone can see this playlist</span>
-                    </div>
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="playlist-privacy"
-                      value="private"
-                      checked={newPlaylistPublic === 'private'}
-                      onChange={(e) => setNewPlaylistPublic(e.target.value)}
-                    />
-                    <span className="radio-custom"></span>
-                    <div className="radio-content">
-                      <span className="radio-title">Private</span>
-                      <span className="radio-description">Only you can see this playlist</span>
-                    </div>
-                  </label>
-                </div>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={newPlaylistPublic === 'public'}
+                    onChange={(e) => setNewPlaylistPublic(e.target.checked ? 'public' : 'private')}
+                  />
+                  <span className="checkmark"></span>
+                  Make playlist public
+                </label>
+                <p className="help-text">Public playlists can be seen by other users</p>
               </div>
             </div>
             <div className="modal-footer">

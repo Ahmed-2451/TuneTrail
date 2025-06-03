@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { usePlayer } from '../contexts/PlayerContext'
-import { getThemedTrackImage } from '../utils/trackImageUtils'
+import { getThemedTrackImage, getThemedTrackThumbnail } from '../utils/trackImageUtils'
 
 const Search = () => {
+  const { isAuthenticated } = useAuth()
+  const { playTrack, currentTrack, isPlaying, toggleLike, likedSongs } = usePlayer()
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  
-  const { playTrack, currentTrack, isPlaying, toggleLike, likedSongs } = usePlayer()
+  const [error, setError] = useState('')
+  const [userPlaylists, setUserPlaylists] = useState([])
+  const [showPlaylistDropdown, setShowPlaylistDropdown] = useState(null)
 
   const categories = [
     { title: 'Podcasts', color: '#1DB954', image: 'podcasts' },
@@ -24,6 +29,14 @@ const Search = () => {
     { title: 'Pop', color: '#148A08', image: 'pop-music' },
     { title: 'Indie', color: '#0D73EC', image: 'indie' },
   ]
+
+  useEffect(() => {
+    // Load user playlists from localStorage
+    const savedPlaylists = localStorage.getItem('userPlaylists')
+    if (savedPlaylists) {
+      setUserPlaylists(JSON.parse(savedPlaylists))
+    }
+  }, [])
 
   // Auto-search with debouncing
   useEffect(() => {
@@ -119,6 +132,92 @@ const Search = () => {
     return likedSongs.has(trackId)
   }
 
+  const handleAddToPlaylist = async (track, playlistId) => {
+    try {
+      // Check if track already exists in playlist
+      const playlist = userPlaylists.find(p => p.id === playlistId)
+      if (!playlist) {
+        alert('Playlist not found')
+        return
+      }
+
+      const trackExists = playlist.tracks?.some(t => t.id === track.id)
+      if (trackExists) {
+        alert(`"${track.title}" is already in "${playlist.name}"`)
+        setShowPlaylistDropdown(null)
+        return
+      }
+
+      // Send to backend
+      const response = await fetch(`/api/playlists/${playlistId}/tracks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ track })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Update local state with backend response
+        const updatedPlaylists = userPlaylists.map(playlist => {
+          if (playlist.id === playlistId) {
+            return result.data
+          }
+          return playlist
+        })
+
+        // Update localStorage
+        localStorage.setItem('userPlaylists', JSON.stringify(updatedPlaylists))
+        setUserPlaylists(updatedPlaylists)
+        setShowPlaylistDropdown(null)
+        
+        // Show success message
+        alert(result.message || `Added "${track.title}" to "${playlist.name}"!`)
+      } else {
+        // Fallback to localStorage if backend fails
+        console.warn('Backend failed, using localStorage fallback:', result.error)
+        
+        const newTrack = {
+          id: track.id,
+          title: track.title,
+          artist: track.artist,
+          album: track.album || track.title || 'Unknown Album',
+          duration: track.duration || 180,
+          artwork_url: track.artwork_url,
+          stream_url: track.stream_url,
+          addedAt: new Date().toISOString()
+        }
+
+        const updatedPlaylists = userPlaylists.map(playlist => {
+          if (playlist.id === playlistId) {
+            return {
+              ...playlist,
+              tracks: [...playlist.tracks, newTrack],
+              trackCount: playlist.tracks.length + 1,
+              duration: playlist.duration + (track.duration || 180),
+              updatedAt: new Date().toISOString()
+            }
+          }
+          return playlist
+        })
+
+        // Save to localStorage
+        localStorage.setItem('userPlaylists', JSON.stringify(updatedPlaylists))
+        setUserPlaylists(updatedPlaylists)
+        setShowPlaylistDropdown(null)
+        
+        // Show success message
+        const playlistName = updatedPlaylists.find(p => p.id === playlistId)?.name
+        alert(`Added "${track.title}" to "${playlistName}"!`)
+      }
+    } catch (error) {
+      console.error('Error adding to playlist:', error)
+      alert('Failed to add song to playlist')
+    }
+  }
+
   return (
     <div className="search-container">
       <form className="search-form" onSubmit={handleSearch}>
@@ -187,6 +286,54 @@ const Search = () => {
                   >
                     <i className="fas fa-heart"></i>
                   </button>
+
+                  {/* Add to Playlist Dropdown */}
+                  <div className="playlist-dropdown-container">
+                    <button 
+                      className="add-to-playlist-button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowPlaylistDropdown(showPlaylistDropdown === track.id ? null : track.id)
+                      }}
+                      title="Add to playlist"
+                    >
+                      <i className="fas fa-plus"></i>
+                    </button>
+                    
+                    {showPlaylistDropdown === track.id && (
+                      <div className="playlist-dropdown">
+                        <div className="playlist-dropdown-header">
+                          Add to playlist
+                        </div>
+                        {userPlaylists.length > 0 ? (
+                          <div className="playlist-list">
+                            {userPlaylists.map(playlist => (
+                              <button
+                                key={playlist.id}
+                                className="playlist-item"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAddToPlaylist(track, playlist.id)
+                                }}
+                              >
+                                <i className="fas fa-music"></i>
+                                <span>{playlist.name}</span>
+                                <span className="track-count">({playlist.trackCount} songs)</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="no-playlists">
+                            <p>No playlists found</p>
+                            <Link to="/playlists" className="create-playlist-link">
+                              Create your first playlist
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <button 
                     className="play-button"
                     onClick={(e) => {
@@ -226,6 +373,14 @@ const Search = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Click outside to close dropdown */}
+      {showPlaylistDropdown && (
+        <div 
+          className="dropdown-overlay"
+          onClick={() => setShowPlaylistDropdown(null)}
+        />
       )}
     </div>
   )

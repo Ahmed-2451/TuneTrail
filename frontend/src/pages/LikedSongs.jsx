@@ -6,7 +6,7 @@ import { getThemedTrackImage } from '../utils/trackImageUtils'
 
 const LikedSongs = () => {
   const navigate = useNavigate()
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, profilePhoto, getUserInitials, getDisplayName } = useAuth()
   const { 
     getLikedSongsCount, 
     likedSongs, 
@@ -202,8 +202,18 @@ const LikedSongs = () => {
           <h1 className="playlist-title">Liked Songs</h1>
           <div className="playlist-meta">
             <span className="playlist-owner">
-              <img src="/images/user-avatar.jpg" alt={user?.name} className="owner-avatar" />
-              {user?.name || 'User'}
+              {profilePhoto ? (
+                <img 
+                  src={profilePhoto} 
+                  alt={getDisplayName()} 
+                  className="owner-avatar" 
+                />
+              ) : (
+                <div className="owner-avatar owner-avatar-fallback">
+                  {getUserInitials()}
+                </div>
+              )}
+              {getDisplayName()}
             </span>
             <span className="playlist-meta-item">{likedTracks.length} songs</span>
           </div>
