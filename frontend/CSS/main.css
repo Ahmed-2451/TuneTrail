@@ -1,0 +1,425 @@
+/* TuneTrail - Main CSS Entry Point */
+
+/* Import base enhanced styling first */
+@import url('./enhanced.css');
+
+/* Import enhanced components (these will override base styles) */
+@import url('./player-enhanced.css');
+@import url('./animations.css');
+
+/* Performance optimizations */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-display: swap; /* Improve font loading performance */
+}
+
+/* Critical CSS for above-the-fold content */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, var(--dark-bg, #0f0f0f) 0%, #1a0a2e 50%, #16213e 100%);
+    color: var(--text-primary, #ffffff);
+    line-height: 1.6;
+    overflow-x: hidden;
+    font-display: swap;
+}
+
+/* Ensure proper box-sizing */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Remove default button styles */
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* Remove default link styles */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Remove default list styles */
+ul,
+ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Image optimization */
+img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+    outline: 2px solid var(--primary-purple, #8b5cf6);
+    outline-offset: 2px;
+}
+
+/* Skip focus for mouse users */
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --dark-border: #666;
+        --text-secondary: #e0e0e0;
+        --text-muted: #cccccc;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    .sidebar,
+    .player,
+    .top-bar {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin: 0 !important;
+        padding: 20px !important;
+    }
+}
+
+/* Force hardware acceleration for smooth animations */
+.card-hover,
+.btn-animate,
+.track-card,
+.nav-item,
+.player-btn {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Optimize for mobile devices */
+@supports (-webkit-touch-callout: none) {
+    /* iOS specific optimizations */
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    input,
+    textarea,
+    button {
+        -webkit-appearance: none;
+        border-radius: 0;
+    }
+}
+
+/* Optimize for high-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Ensure crisp images on retina displays */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Custom selection colors */
+::selection {
+    background: var(--primary-purple-200, rgba(139, 92, 246, 0.2));
+    color: var(--text-primary, #ffffff);
+}
+
+::-moz-selection {
+    background: var(--primary-purple-200, rgba(139, 92, 246, 0.2));
+    color: var(--text-primary, #ffffff);
+}
+
+/* Loading placeholder animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.loading-placeholder {
+    background: linear-gradient(90deg, var(--dark-surface, #1a1a1a) 25%, var(--dark-surface-hover, #252525) 50%, var(--dark-surface, #1a1a1a) 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--border-radius-sm, 8px);
+}
+
+/* Utility classes */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.pointer-events-auto {
+    pointer-events: auto;
+}
+
+.select-none {
+    user-select: none;
+}
+
+.select-text {
+    user-select: text;
+}
+
+.select-all {
+    user-select: all;
+}
+
+/* Container queries for responsive components */
+@supports (container-type: inline-size) {
+    .responsive-container {
+        container-type: inline-size;
+    }
+    
+    @container (max-width: 400px) {
+        .container-responsive {
+            font-size: 14px;
+            padding: 8px;
+        }
+    }
+}
+
+/* Theme transition */
+* {
+    transition: 
+        background-color var(--transition-normal, 0.3s ease),
+        border-color var(--transition-normal, 0.3s ease),
+        color var(--transition-normal, 0.3s ease);
+}
+
+/* Disable transitions during theme change */
+.theme-changing * {
+    transition: none !important;
+}
+
+/* Additional utility styles */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* Global link and anchor styles */
+a {
+    color: var(--primary-grey);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+a:hover {
+    color: #ffffff;
+}
+
+/* Global focus styles for accessibility */
+*:focus {
+    outline: 2px solid var(--primary-purple);
+    outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--primary-purple);
+    outline-offset: 2px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--deep-purple);
+}
+
+/* Selection styling */
+::selection {
+    background: var(--primary-purple);
+    color: #ffffff;
+}
+
+::-moz-selection {
+    background: var(--primary-purple);
+    color: #ffffff;
+}
+
+/* Form validation styles */
+.form-group.error input {
+    border-color: var(--error-red);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group.success input {
+    border-color: var(--success-green);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.error-message {
+    color: var(--error-red);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.success-message {
+    color: var(--success-green);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: rgba(31, 31, 46, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    padding: 16px 20px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: var(--transition-normal);
+    max-width: 300px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    border-left: 4px solid var(--success-green);
+}
+
+.toast.error {
+    border-left: 4px solid var(--error-red);
+}
+
+.toast.warning {
+    border-left: 4px solid var(--warning-orange);
+}
+
+/* Custom scrollbar for specific elements */
+.chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 3px;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .sidebar,
+    .player,
+    .topbar,
+    .chatbot-container {
+        display: none !important;
+    }
+    
+    .main-container {
+        margin-left: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .quick-access-card,
+    .category-card {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Ensure proper font loading */
+.font-loaded {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+} 

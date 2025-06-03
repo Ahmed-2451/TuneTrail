@@ -1,0 +1,272 @@
+/* TuneTrail - Enhanced Animations */
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button animations */
+.btn,
+.like-button,
+.control-buttons button,
+.volume-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover,
+.like-button:hover,
+.control-buttons button:hover,
+.volume-button:hover {
+    transform: translateY(-2px) scale(1.05);
+}
+
+.btn:active,
+.like-button:active,
+.control-buttons button:active,
+.volume-button:active {
+    transform: translateY(0) scale(0.95);
+    transition-duration: 0.1s;
+}
+
+/* Track card animations */
+.track-card,
+.search-result-item,
+.quick-access-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.track-card:hover,
+.search-result-item:hover,
+.quick-access-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Image hover effects */
+.current-song-image,
+.track-image,
+.result-image {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.current-song-image:hover,
+.track-image:hover,
+.result-image:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Text hover effects */
+.song-details h4:hover,
+.song-details p:hover,
+.track-title:hover,
+.track-artist:hover {
+    color: #8b5cf6;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+/* Loading animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Apply animations to page elements */
+.page-container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.track-grid .track-card {
+    animation: slideUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.track-grid .track-card:nth-child(1) { animation-delay: 0.1s; }
+.track-grid .track-card:nth-child(2) { animation-delay: 0.15s; }
+.track-grid .track-card:nth-child(3) { animation-delay: 0.2s; }
+.track-grid .track-card:nth-child(4) { animation-delay: 0.25s; }
+.track-grid .track-card:nth-child(5) { animation-delay: 0.3s; }
+.track-grid .track-card:nth-child(6) { animation-delay: 0.35s; }
+.track-grid .track-card:nth-child(7) { animation-delay: 0.4s; }
+.track-grid .track-card:nth-child(8) { animation-delay: 0.45s; }
+
+.quick-access-grid .quick-access-card {
+    animation: scaleIn 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.quick-access-grid .quick-access-card:nth-child(1) { animation-delay: 0.1s; }
+.quick-access-grid .quick-access-card:nth-child(2) { animation-delay: 0.15s; }
+.quick-access-grid .quick-access-card:nth-child(3) { animation-delay: 0.2s; }
+.quick-access-grid .quick-access-card:nth-child(4) { animation-delay: 0.25s; }
+
+/* Player entrance animation */
+.player {
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Heart beat animation for like button */
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.like-button.liked i {
+    animation: heartBeat 0.6s ease-in-out;
+}
+
+/* Pulse animation for play button when playing */
+@keyframes playPulse {
+    0% { box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4); }
+    50% { box-shadow: 0 8px 24px rgba(139, 92, 246, 0.6), 0 0 20px rgba(139, 92, 246, 0.3); }
+    100% { box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4); }
+}
+
+.play-pause.playing {
+    animation: playPulse 2s ease-in-out infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner,
+.button-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Progress bar fill animation */
+@keyframes progressFill {
+    from {
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+    to {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+}
+
+.progress {
+    animation: progressFill 0.3s ease-out;
+}
+
+/* Stagger animation for search results */
+.search-results-list .search-result-item {
+    animation: slideUp 0.3s ease-out;
+    animation-fill-mode: both;
+}
+
+.search-results-list .search-result-item:nth-child(1) { animation-delay: 0.05s; }
+.search-results-list .search-result-item:nth-child(2) { animation-delay: 0.1s; }
+.search-results-list .search-result-item:nth-child(3) { animation-delay: 0.15s; }
+.search-results-list .search-result-item:nth-child(4) { animation-delay: 0.2s; }
+.search-results-list .search-result-item:nth-child(5) { animation-delay: 0.25s; }
+.search-results-list .search-result-item:nth-child(6) { animation-delay: 0.3s; }
+.search-results-list .search-result-item:nth-child(7) { animation-delay: 0.35s; }
+.search-results-list .search-result-item:nth-child(8) { animation-delay: 0.4s; }
+
+/* Hover effects for interactive elements */
+.sidebar .navigation li a {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar .navigation li a:hover {
+    transform: translateX(8px);
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Progress bar interaction */
+.progress-bar:hover .progress {
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+}
+
+/* Volume bar interaction */
+.volume-bar:hover .volume-progress {
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+
+/* Error state animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.error-indicator {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Success animation for like button */
+@keyframes likeSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.like-button.just-liked {
+    animation: likeSuccess 0.4s ease-out;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .track-grid .track-card,
+    .quick-access-grid .quick-access-card,
+    .search-results-list .search-result-item {
+        animation: none;
+    }
+    
+    .player {
+        animation: none;
+    }
+    
+    .like-button.liked i,
+    .play-pause.playing,
+    .like-button.just-liked {
+        animation: none;
+    }
+} 

@@ -1,7 +1,30 @@
 {
+  "name": "tunetrail",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "echo \"🚀 Starting development mode...\" && echo \"📱 Frontend: http://localhost:3001 (use this URL)\" && echo \"🔧 Backend:  http://localhost:3002/api\" && echo \"\" && concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "start": "echo \"🏭 Starting production mode...\" && echo \"🌐 Access: http://localhost:3002\" && npm run build && npm run backend:start",
+    "build": "cd frontend && npm run build",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:preview": "cd frontend && npm run preview",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "production": "npm run build && cd backend && npm run start",
+    "dev:quick": "echo \"🚀 Quick development start - opens http://localhost:3001\" && concurrently \"npm run backend:dev\" \"npm run frontend:dev\" && start http://localhost:3001"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "passport-google-oauth20": "^2.0.0",
     "simple-peer": "^9.11.1",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

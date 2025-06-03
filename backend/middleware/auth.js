@@ -1,27 +1,24 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const Users = require('../models/users');
 require('dotenv').config();
 
-// Middleware to authenticate JWT
+// Middleware to authenticate JWT tokens
 const authenticateJWT = (req, res, next) => {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(403).json({ message: 'Invalid token' });
     }
     req.user = user;
-    return next();
-  })(req, res, next);
-};
-
-// Middleware to check if user is admin
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    return next();
-  }
-  return res.status(403).json({ message: 'Forbidden: Admin access required' });
+    next();
+  });
 };
 
 // Generate JWT token
@@ -32,7 +29,7 @@ const generateToken = (user) => {
   }
   
   return jwt.sign(
-    { id: user.id, email: user.email, isAdmin: user.isAdmin },
+    { id: user.id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION || '24h' }
   );
@@ -40,6 +37,5 @@ const generateToken = (user) => {
 
 module.exports = {
   authenticateJWT,
-  isAdmin,
   generateToken
 }; 

@@ -28,10 +28,6 @@ const Users = sequelize.define('Users', {
     type: DataTypes.STRING,
     defaultValue: 'defaultpfp.jpg'//a new user signs up and doesn't upload a profile picture
   },
-  isAdmin: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
   chatHistory: {
     type: DataTypes.JSON,
     defaultValue: []

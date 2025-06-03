@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Database configuration from environment variables
-const dbName = process.env.DB_NAME || 'spotify';
+const dbName = process.env.DB_NAME || 'tunetrail';
 const dbUser = process.env.DB_USER || 'postgres';
 const dbPassword = process.env.DB_PASSWORD || 'postgres';
 const dbHost = process.env.DB_HOST || 'localhost';
@@ -45,10 +45,6 @@ const Users = sequelize.define('Users', {
   profileImage: {
     type: DataTypes.STRING,
     defaultValue: 'defaultpfp.jpg'
-  },
-  isAdmin: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
   },
   chatHistory: {
     type: DataTypes.JSON,
@@ -127,26 +123,6 @@ async function initializeDatabase() {
     await sequelize.sync({ alter: true });
     console.log('Database sync complete');
     
-    // Check if admin user exists
-    const adminExists = await Users.findOne({
-      where: { email: 'admin@spotify.com' }
-    });
-    
-    // Create admin user only if it doesn't exist
-    if (!adminExists) {
-      console.log('Creating admin user...');
-      await Users.create({
-        username: 'admin',
-        email: 'admin@spotify.com',
-        password: 'admin123',
-        name: 'Admin User',
-        isAdmin: true
-      });
-      console.log('Admin user created');
-    } else {
-      console.log('Admin user already exists, skipping creation');
-    }
-    
     // Create a test track table using raw SQL (necessary for your app)
     const Pool = require('pg').Pool;
     const pool = new Pool({
@@ -157,75 +133,43 @@ async function initializeDatabase() {
       port: dbPort,
     });
 
-    console.log('Creating tracks table...');
+    console.log('Creating user_liked_songs table...');
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS tracks (
+      CREATE TABLE IF NOT EXISTS user_liked_songs (
         id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        artist VARCHAR(255) NOT NULL,
-        filename VARCHAR(255) NOT NULL,
-        album VARCHAR(255) NOT NULL,
-        date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        cover_url VARCHAR(255)
+        user_id INTEGER NOT NULL,
+        track_id INTEGER NOT NULL,
+        liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, track_id)
       )
     `);
-    
-    // Add sample tracks
-    const { rows } = await pool.query('SELECT * FROM tracks');
-    if (rows.length === 0) {
-      console.log('Adding sample tracks...');
-      await pool.query(`
-        INSERT INTO tracks (title, artist, filename, album, cover_url)
-        VALUES 
-        ('K.', 'Cigarettes After Sex', 'K. - Cigarettes After Sex.mp3', 'K.', '/images/image.jpg'),
-        ('Cry', 'Cigarettes After Sex', 'Cry - Cigarettes After Sex.mp3', 'Cry', '/images/image.jpg'),
-        ('Apocalypse', 'Cigarettes After Sex', 'Apocalypse - Cigarettes After Sex.mp3', 'Apocalypse', '/images/image.jpg'),
-        ('Flash', 'Cigarettes After Sex', 'Flash.mp3', 'Flash', '/images/image.jpg'),
-        ('Opera House', 'Cigarettes After Sex', 'Opera House.mp3', 'Opera House', '/images/image.jpg'),
-        ('John Wayne', 'Cigarettes After Sex', 'John Wayne.mp3', 'John Wayne', '/images/image.jpg'),
-        ('Sweet', 'Cigarettes After Sex', 'Sweet.mp3', 'Sweet', '/images/image.jpg'),
-        ('Each Time You Fall in Love', 'Cigarettes After Sex', 'Each Time You Fall in Love.mp3', 'Each Time You Fall in Love', '/images/image.jpg')
-      `);
-      console.log('Sample tracks added');
-    }
 
-    // List all created tables
-    const [results] = await sequelize.query(
-      "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
-    );
-    console.log('Created tables:', results.map(r => r.table_name).join(', '));
-    
+    await pool.end();
     console.log('Database initialization complete');
-    return true;
+    
   } catch (error) {
-    console.error('Database initialization failed:', error);
-    return false;
+    console.error('Database initialization error:', error);
+    throw error;
   }
 }
 
-// Run the initialization if this script is executed directly
+// Run the initialization if this file is executed directly
 if (require.main === module) {
   initializeDatabase()
-    .then(success => {
-      if (success) {
-        console.log('Database setup successful');
-        process.exit(0);
-      } else {
-        console.error('Database setup failed');
-        process.exit(1);
-      }
+    .then(() => {
+      console.log('Database initialized successfully');
+      process.exit(0);
     })
-    .catch(err => {
-      console.error('Unhandled error during database setup:', err);
+    .catch((error) => {
+      console.error('Database initialization failed:', error);
       process.exit(1);
     });
-} else {
-  // Export for use in other files
-  module.exports = { 
-    initializeDatabase,
-    sequelize,
-    Users,
-    Songs,
-    LikedSongs
-  };
-} 
+}
+
+module.exports = {
+  sequelize,
+  Users,
+  Songs,
+  LikedSongs,
+  initializeDatabase
+}; 

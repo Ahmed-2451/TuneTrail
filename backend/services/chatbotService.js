@@ -44,8 +44,8 @@ class ChatbotService {
       
       // Add system context for music assistant
       const inputWithContext = conversationContext 
-        ? `${conversationContext}\nYou are a helpful music assistant for a Spotify clone. You can recommend songs, help with playlists, and answer questions about music.\nuser: ${message}`
-        : `You are a helpful music assistant for a Spotify clone. You can recommend songs, help with playlists, and answer questions about music.\nuser: ${message}`;
+        ? `${conversationContext}\nYou are a helpful music assistant for TuneTrail. You can recommend songs, help with playlists, and answer questions about music.\nuser: ${message}`
+        : `You are a helpful music assistant for TuneTrail. You can recommend songs, help with playlists, and answer questions about music.\nuser: ${message}`;
       
       // Prepare the request to Astra Langflow API
       const response = await fetch(`${config.ASTRA_API_URL}?stream=false`, {

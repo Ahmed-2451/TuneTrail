@@ -1,158 +1,188 @@
-# Spotify Clone
+# 🎵 TuneTrail - Modern Music Streaming Platform
 
-A full-featured Spotify clone application with music playback, playlists, user accounts, and AI-powered chatbots.
+A beautiful Spotify-inspired music streaming application built with React and Node.js, featuring a modern purple-themed UI and real music integration.
 
-## Features
+![TuneTrail Logo](./frontend/images/tunetrail-logo.png)
 
-- **Music Playback**: Stream and play music with full player controls
-- **User Authentication**: Login, signup, and profile management
-- **Responsive Design**: Works on desktop and mobile devices
-- **AI Chatbots**: Music-specific and general assistant chatbots
-- **Search Functionality**: Find songs, artists, and albums
+## ✨ Features
 
-## Tech Stack
+- 🎨 **Modern UI Design** - Beautiful purple-themed interface inspired by Spotify
+- 🎵 **Music Player** - Full-featured audio player with controls, progress bar, and volume
+- 🔍 **Search Functionality** - Search for music with real-time results via Audius API
+- ❤️ **Liked Songs** - Save and manage your favorite tracks
+- 📱 **Responsive Design** - Works perfectly on desktop, tablet, and mobile
+- 🎚️ **Player Controls** - Play, pause, next, previous, shuffle, repeat, volume
+- 🎪 **Live Audio Streaming** - Integration with Audius decentralized music platform
+- 🔐 **User Authentication** - Login and signup system (demo mode)
 
-### Frontend
-- HTML, CSS, JavaScript
-- Modern responsive design
-- Streaming audio playback
-
-### Backend
-- Node.js
-- Express.js
-- PostgreSQL database
-- Sequelize ORM
-- JWT authentication
-- WebSockets for streaming
-
-## Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v16+)
-- PostgreSQL
+- Node.js (v16 or higher)
+- npm or yarn
 
-### Setup
+### Installation & Setup
 
-1. Clone the repository
-```
-git clone https://github.com/Ahmed-2451/Spotify-Clone
-cd Spotify-Clone
-```
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd Spotify-Clone
+   ```
 
-2. Install backend dependencies
-```
-cd backend
-npm install
-```
-
-3. Create a `.env` file in the backend directory with the following:
-```
-# Database Configuration
-DB_NAME=spotify
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=localhost
-DB_PORT=5432
-
-# Server Configuration
-PORT=3001
-
-# JWT Secret
-JWT_SECRET=your_jwt_secret_key_here
-
-# OpenRouter API (for chatbot)
-OPENROUTER_API_KEY=your_openrouter_api_key
-MAX_HISTORY_LENGTH=20
-
-# Google Search API (for real-time web search)
-GOOGLE_SEARCH_API_KEY=your_google_api_key_here
-GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id_here
-
-# Google Auth
-GOOGLE_CLIENT_ID=your_client_id_here
-GOOGLE_CLIENT_SECRET=your_client_secret_here
-GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
-```
-
-4. Start the backend server
-```
-node server.js
-```
-
-5. Open the frontend in your browser
-```
-http://localhost:3001
-```
-
-## Chatbot Features
-
-The application includes two AI-powered chatbots:
-
-1. **Music Assistant**: Helps with music recommendations, playlist creation, and app features
-2. **General Assistant**: Answers general questions and provides conversation
-
-### Setting up Google Search API for Real-time Data
-
-To enable the chatbots to search the web for real-time information such as weather, news, and current events, you need to set up the Google Custom Search API:
-
-1. Create a Google Cloud Platform account at https://console.cloud.google.com/
-2. Create a new project
-3. Enable the "Custom Search API" in the API Library
-4. Create API credentials to get your API key
-5. Go to https://programmablesearchengine.google.com/ to create a Programmable Search Engine
-6. Configure your search engine (select "Search the entire web" option)
-7. Get your Search Engine ID
-8. Add both the API key and Search Engine ID to your `.env` file
-
-Without these credentials, the chatbot will still work but won't be able to provide real-time information.
-
-## Deployment
-
-### Google OAuth in Production
-
-When deploying to a platform like Render, you need to configure Google OAuth correctly:
-
-1. **Update Google Cloud Console settings**:
-   - Go to https://console.cloud.google.com/
-   - Navigate to your project
-   - Go to "APIs & Services" > "Credentials"
-   - Find and edit your OAuth 2.0 Client ID
-   - Add your production redirect URL: `https://spotify-clone.onrender.com/auth/google/callback`
+2. **Install dependencies**
+   ```bash
+   # Install backend dependencies
+   cd backend
+   npm install
+   cd ..
    
-2. **Configure environment variables in Render**:
-   - In your Render dashboard, navigate to your web service
-   - Go to the "Environment" tab
-   - Add the following environment variables:
-     - `NODE_ENV`: `production`
-     - `GOOGLE_CLIENT_ID`: Your Google Client ID
-     - `GOOGLE_CLIENT_SECRET`: Your Google Client Secret
-     - `GOOGLE_CALLBACK_URL`: `https://spotify-clone.onrender.com/auth/google/callback`
+   # Install frontend dependencies
+   cd frontend
+   npm install
+   cd ..
+   ```
 
-3. **Update start command in Render**:
-   - Set the start command to: `npm run start:production`
+3. **Start the application**
+   ```bash
+   # Option 1: Use the startup script (recommended)
+   node start.js
+   
+   # Option 2: Manual startup
+   # Build frontend first
+   cd frontend && npm run build && cd ..
+   # Start backend
+   cd backend && node server.js
+   ```
 
-If you can't access the Render dashboard to update environment variables, the application includes a fallback mechanism that will automatically set the correct Google callback URL in production mode.
+4. **Access the application**
+   - Open your browser and go to `http://localhost:3001`
+   - The API is available at `http://localhost:3001/api`
 
-## Project Structure
+## 🏗️ Project Structure
 
-- `/backend`: Node.js server, API endpoints, database models
-  - `/config`: Database and authentication configuration
-  - `/models`: Sequelize data models
-  - `/routes`: API route handlers
-  - `/services`: Business logic and services
-  - `/middleware`: Express middleware
-- `/frontend`: Client-side application
-  - `/CSS`: Stylesheets
-  - `/js`: JavaScript modules
-  - `/images`: Static images
+```
+TuneTrail/
+├── backend/                 # Node.js backend server
+│   ├── server.js           # Main server file
+│   ├── images/             # Static images served by API
+│   ├── config/             # Database and auth configuration
+│   ├── models/             # Database models
+│   ├── routes/             # API routes
+│   └── package.json        # Backend dependencies
+├── frontend/               # React frontend application
+│   ├── src/                # React source code
+│   │   ├── components/     # Reusable components
+│   │   ├── pages/          # Page components
+│   │   ├── contexts/       # React contexts
+│   │   └── utils/          # Utility functions
+│   ├── dist/               # Built frontend (generated)
+│   ├── CSS/                # Stylesheets
+│   ├── images/             # Frontend images
+│   └── package.json        # Frontend dependencies
+└── start.js               # Application startup script
+```
 
-## Future Enhancements
+## 🎯 API Endpoints
 
-- Social features (follow users, share playlists)
-- Advanced recommendation engine
-- Mobile app version
-- Offline mode
+### Music & Streaming
+- `GET /api` - Server info and available endpoints
+- `GET /api/audius/trending` - Get trending tracks from Audius
+- `GET /api/audius/search?query=<term>` - Search for tracks on Audius
+- `GET /api/audius/stream/:id` - Stream audio from Audius
 
-## License
+### Player Controls
+- `GET /api/playback-state` - Get current player state
+- `POST /api/playback/toggle` - Play/pause toggle
+- `POST /api/playback/next` - Next track
+- `POST /api/playback/previous` - Previous track
+- `POST /api/playback/volume` - Set volume level
 
-MIT License - See LICENSE file for details. 
+### User Features
+- `GET /api/liked-songs` - Get user's liked songs
+- `POST /api/external-tracks/:id/like` - Like/unlike a track
+- `POST /api/login` - User login (demo)
+- `POST /api/signup` - User registration (demo)
+
+## 🎨 Features in Detail
+
+### Music Player
+- **Full Controls**: Play, pause, next, previous, shuffle, repeat
+- **Progress Bar**: Click to seek, real-time progress updates
+- **Volume Control**: Adjustable volume with mute toggle
+- **Track Information**: Title, artist, artwork display
+- **Loading States**: Visual feedback for track loading
+
+### User Interface
+- **Purple Theme**: Modern gradient design with purple accents
+- **Responsive Layout**: Mobile-first design that works on all devices
+- **Smooth Animations**: CSS transitions and hover effects
+- **Grid Layouts**: Organized display of tracks and categories
+- **Interactive Elements**: Hover states and click feedback
+
+### Music Integration
+- **Audius Integration**: Access to thousands of tracks via Audius API
+- **Categories**: Electronic, Hip-Hop, Rock, Pop, Jazz, Classical
+- **Search Results**: Real-time search with Audius music database
+- **Quick Access**: Recently played, playlists, liked songs
+
+## 🔧 Development
+
+### Frontend Development
+```bash
+cd frontend
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+```
+
+### Backend Development
+```bash
+cd backend
+node server.js       # Start backend server
+```
+
+## 🚀 Deployment
+
+### Production Build
+1. Build the frontend: `cd frontend && npm run build`
+2. Start the backend: `cd backend && node server.js`
+3. Set environment variables as needed
+4. Configure reverse proxy (nginx) if required
+
+### Environment Variables
+- `PORT` - Server port (default: 3001)
+- `NODE_ENV` - Environment mode (development/production)
+
+## 🎵 Music Integration
+
+TuneTrail integrates with the Audius decentralized music platform to provide:
+
+1. **Real Music**: Access to thousands of tracks from independent artists
+2. **Search**: Find music by title, artist, or genre
+3. **Streaming**: High-quality audio streaming
+4. **Trending**: Discover popular and trending tracks
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -am 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Design inspired by Spotify
+- Music powered by Audius decentralized platform
+- Icons from Font Awesome
+- Built with React, Node.js, and Express
+
+---
+
+**Made with ❤️ by the TuneTrail Team**
+
+🎵 Enjoy your music! 🎵 

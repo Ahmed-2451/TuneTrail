@@ -160,10 +160,10 @@ class FallbackChatbotService {
       {
         triggers: ['who are you', 'what are you', 'are you ai', 'are you human', 'are you a bot', 'your name'],
         responses: [
-          "I'm your Spotify music assistant, designed to help you discover and enjoy music on this platform.",
+          "I'm your TuneTrail music assistant, designed to help you discover and enjoy music on this platform.",
           "I'm a musical companion here to help you navigate the app and discover new music you might love.",
           "Think of me as your personal music concierge. I'm here to make your experience more enjoyable!",
-          "I'm an AI assistant specialized in music recommendations and helping you use this Spotify clone app."
+          "I'm an AI assistant specialized in music recommendations and helping you use this TuneTrail app."
         ]
       }
     ];
